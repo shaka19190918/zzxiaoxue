@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>外研社版（一年级起点）· 小学英语 3D 螺旋课节</title>
+<meta name="description" content="外研社版（一年级起点，主编：陈琳）小学英语上下册官方精品课 3D 螺旋知识图谱，点击任一课节直达国家中小学智慧教育平台对应课时讲解。">
+<meta name="theme-color" content="#0a0f1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="外研社英语3D">
+<meta property="og:title" content="外研社版（一年级起点）· 小学英语 3D 螺旋课节">
+<meta property="og:description" content="官方精品课 · 点击课节直达国家中小学智慧教育平台">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230a0f1e'/%3E%3Cpath d='M14 46 Q32 10 50 46' stroke='%2335bcec' stroke-width='4' fill='none'/%3E%3Ccircle cx='20' cy='40' r='5' fill='%23ff9a2e'/%3E%3Ccircle cx='32' cy='29' r='5' fill='%2384d944'/%3E%3Ccircle cx='44' cy='40' r='5' fill='%23f5cf1f'/%3E%3C/svg%3E">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:radial-gradient(ellipse at center, #13203c 0%, #0a0f1e 58%, #04070f 100%); font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; }
+body { user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
+#stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+#stage { position:fixed; inset:0; z-index:1; perspective:1500px; cursor:grab; touch-action:none; }
+#stage.dragging { cursor:grabbing; }
+#scene { position:absolute; left:50%; top:50%; width:0; height:0; transform-style:preserve-3d; }
+#spin { position:absolute; left:0; top:0; width:0; height:0; transform-style:preserve-3d; }
+
+/* 中心光柱（学习主轴） */
+#core { position:absolute; left:-3px; top:0; width:6px; height:0; border-radius:6px;
+  background:linear-gradient(to bottom, rgba(120,180,255,0) 0%, rgba(120,180,255,.55) 12%, rgba(150,210,255,.7) 50%, rgba(120,180,255,.55) 88%, rgba(120,180,255,0) 100%);
+  box-shadow:0 0 26px rgba(120,180,255,.5); transform:translateY(-50%); }
+/* 底座光环 */
+#base { position:absolute; left:-150px; top:0; width:300px; height:80px; border-radius:50%;
+  border:1px solid rgba(140,190,255,.2); background:radial-gradient(ellipse at center, rgba(60,120,220,.18), rgba(60,120,220,0) 70%); transform:translateY(0) rotateX(78deg); }
+
+/* 课节节点 */
+.node { position:absolute; left:0; top:0; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; transform-style:preserve-3d; cursor:pointer; }
+.node .ball { position:absolute; inset:0; border-radius:50%; box-shadow:inset -3px -4px 8px rgba(0,0,0,.5), inset 2px 3px 6px rgba(255,255,255,.55), 0 3px 9px rgba(0,0,0,.55); }
+.node .ball::after { content:""; position:absolute; top:12%; left:20%; width:32%; height:24%; border-radius:50%; background:rgba(255,255,255,.82); filter:blur(1.5px); transform:rotate(-25deg); }
+.node:hover { z-index:999; }
+.node:hover .ball { box-shadow:0 0 0 3px rgba(255,255,255,.92), 0 0 22px rgba(255,255,255,.8), inset -3px -4px 8px rgba(0,0,0,.5); }
+
+.node .label {
+  position:absolute; left:50%; top:100%; transform:translateX(-50%);
+  margin-top:4px; max-width:158px; padding:1px 7px; border-radius:8px;
+  background:rgba(6,13,30,.82); border:1px solid rgba(140,185,255,.28); color:#e6eeff;
+  font-size:10.5px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  pointer-events:none; box-shadow:0 1px 5px rgba(0,0,0,.4); letter-spacing:.2px; opacity:0;
+  transition:color .12s, border-color .12s, background .12s;
+}
+.node:hover .label { color:#ffd24a; border-color:rgba(255,210,74,.55); background:rgba(20,30,56,.94); }
+
+/* HUD */
+#hud { position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:5; text-align:center; pointer-events:none; }
+#hud h1 { font-size:22px; color:#fff; letter-spacing:1.5px; text-shadow:0 2px 14px rgba(90,150,255,.5); }
+#hud .sub { margin-top:5px; font-size:12px; color:rgba(255,255,255,.72); }
+#hud .sub b { color:#ffd24a; }
+#hint { display:inline-block; margin-top:8px; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.85); font-size:12px; }
+#hint.amber { background:rgba(255,210,74,.14); border-color:rgba(255,210,74,.4); color:#ffe08a; }
+
+#tooltip { position:fixed; z-index:9; max-width:320px; padding:9px 13px; border-radius:10px; background:rgba(8,15,32,.96); border:1px solid rgba(120,170,255,.5); color:#fff; font-size:13px; line-height:1.6; box-shadow:0 8px 28px rgba(0,0,0,.6); opacity:0; pointer-events:none; transition:opacity .12s; }
+#tooltip .t-name { font-size:14px; font-weight:bold; color:#ffd24a; }
+#tooltip .t-mod { color:rgba(255,255,255,.7); font-size:12px; }
+#tooltip .t-go { margin-top:3px; color:#6fb4ff; font-size:11px; }
+
+/* 图例 */
+#legend { position:fixed; right:0; top:0; bottom:0; z-index:5; width:272px; padding:14px 10px 14px 14px; background:rgba(255,255,255,.06); border-left:1px solid rgba(255,255,255,.13); backdrop-filter:blur(8px); display:flex; flex-direction:column; }
+#legend h3 { color:#fff; font-size:13px; letter-spacing:2px; margin-bottom:8px; }
+#legendBody { flex:1; overflow-y:auto; padding-right:6px; }
+#legendBody::-webkit-scrollbar { width:5px; }
+#legendBody::-webkit-scrollbar-thumb { background:rgba(255,255,255,.22); border-radius:3px; }
+.lg-vol { margin:10px 0 4px; font-size:12px; font-weight:bold; color:#ffd24a; letter-spacing:1px; border-bottom:1px solid rgba(255,255,255,.14); padding-bottom:4px; }
+.lg-mod { display:flex; align-items:center; gap:7px; padding:5px 6px; margin:2px 0; border-radius:6px; color:rgba(255,255,255,.92); font-size:12px; cursor:pointer; }
+.lg-mod:hover { background:rgba(255,255,255,.12); }
+.lg-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.lg-caret { margin-left:auto; font-size:10px; color:rgba(255,255,255,.5); transition:transform .18s; }
+.lg-lessons { display:none; margin:2px 0 6px 18px; }
+.lg-lessons.open { display:block; }
+.lg-lesson { padding:4px 8px; margin:1px 0; border-radius:5px; font-size:12px; color:rgba(255,255,255,.75); cursor:pointer; line-height:1.4; }
+.lg-lesson:hover { background:rgba(120,180,255,.22); color:#fff; }
+
+#src { position:fixed; left:14px; bottom:12px; z-index:5; max-width:320px; padding:9px 12px; border-radius:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.62); font-size:11px; line-height:1.65; }
+#src a { color:#7cc0ff; text-decoration:none; }
+
+@media (max-width:1280px){ #legend { width:218px; padding:12px 8px 12px 11px; } #legend h3{font-size:12px;} .lg-mod,.lg-lesson{font-size:11.5px;} }
+@media (max-width:860px){ #legend{display:none;} #src{display:none;} #hud h1{font-size:17px;} #hud .sub{font-size:11px;} }
+@media (max-height:700px){ #hud{top:8px;} #hud h1{font-size:17px; letter-spacing:1px;} #hud .sub{margin-top:3px; font-size:11px;} #hint{margin-top:5px; padding:3px 10px; font-size:11px;} }
+@media (pointer:coarse){ .node::before{content:""; position:absolute; inset:-12px; border-radius:50%;} .node .label{font-size:11px; max-width:150px;} #legendBody{-webkit-overflow-scrolling:touch;} .lg-lesson{padding:7px 8px;} }
+
+#nav { position:fixed; top:13px; left:14px; z-index:6; display:flex; gap:8px; }
+#nav a { padding:5px 11px; border-radius:18px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); color:rgba(255,255,255,.9); font-size:12px; text-decoration:none; letter-spacing:.5px; backdrop-filter:blur(6px); transition:background .15s, border-color .15s; }
+#nav a:hover { background:rgba(255,210,74,.18); border-color:rgba(255,210,74,.5); color:#ffe08a; }
+#nav a.cur { background:rgba(255,210,74,.2); border-color:rgba(255,210,74,.55); color:#ffe08a; font-weight:bold; }
+@media (max-width:860px){ #nav{top:10px;left:10px;} #nav a{padding:4px 9px; font-size:11px;} }
+</style>
+</head>
+<body>
+<div id="nav">
+  <a href="../" target="_self">← 一年级数学 3D</a>
+  <a href="https://shaka19190918.github.io/youxiao-xianjie/" target="_blank" rel="noopener">幼小衔接快乐营 →</a>
+</div>
+<div id="stars"></div>
+<div id="stage"><div id="scene"><div id="spin"></div><div id="core"></div><div id="base"></div></div></div>
+
+<div id="hud">
+  <h1>外研社版（一年级起点）· 小学英语 3D 螺旋课节</h1>
+  <div class="sub">主编：陈琳 &nbsp;|&nbsp; 一年级 上 / 下册 &nbsp;|&nbsp; 共 <b id="cnt">0</b> 节官方精品课 &nbsp;|&nbsp; 点击<b>课节星球</b>直达国家平台对应课时讲解</div>
+  <div id="hint">✋ 单指拖动旋转 · 双击/双点复位 · 点击课节星球直达国家平台</div>
+</div>
+
+<div id="tooltip"></div>
+<aside id="legend"><h3>📚 课时导航（点击模块展开）</h3><div id="legendBody"></div></aside>
+<div id="src">
+  📖 教材来源：<a href="https://basic.smartedu.cn/syncClassroom/prepare?defaultTag=e7bbb2de%2F6a7495dc%2F44bedc1e%2Fe7bbd296%2Fff8080814371757b014390f883db0453%2F5136342961" target="_blank" rel="noopener">国家中小学智慧教育平台 · 小学/英语/外研社版/一年级起点</a><br>
+  ✅ 每一节均已精确链接到平台上对应的官方课时讲解页面。
+</div>
+
+<script>
+var KNOWLEDGE = [{"vol":"B","module":"Module 1","moduleNum":1,"title":"Unit 2 She's a nurse.","id":"f870af5f-3f8a-3c66-9681-aa2e8ffedad9","resId":"8aee80b0-69b4-08e6-0169-b4ed17d30138","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80b0-69b4-08e6-0169-b4ed17d30138&chapterId=f870af5f-3f8a-3c66-9681-aa2e8ffedad9&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#ec3c3c","ml":"#f69e9e","md":"#892323"},{"vol":"B","module":"Module 2","moduleNum":2,"title":"Unit 1 Where's the bird?","id":"ca990a10-5463-37f9-b361-3c624d108f05","resId":"8aee80a3-63a6-5b15-0163-a923c75506df","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80a3-63a6-5b15-0163-a923c75506df&chapterId=ca990a10-5463-37f9-b361-3c624d108f05&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#eca03c","ml":"#f6d09e","md":"#895d23"},{"vol":"B","module":"Module 2","moduleNum":2,"title":"Unit 2 The toy car is under the bed.","id":"b4f90f95-ed53-35b4-954b-dc1335b50941","resId":"ff808081-5c38-d2d7-015c-3999c1770c37","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=ff808081-5c38-d2d7-015c-3999c1770c37&chapterId=b4f90f95-ed53-35b4-954b-dc1335b50941&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#eca03c","ml":"#f6d09e","md":"#895d23"},{"vol":"A","module":"Module 3","moduleNum":3,"title":"Unit 1 Sit down!","id":"316c0483-c742-34be-a40f-2f508379017a","resId":"ff808081-5759-763e-0157-60bcea9359db","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=ff808081-5759-763e-0157-60bcea9359db&chapterId=316c0483-c742-34be-a40f-2f508379017a&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#d4ec3c","ml":"#eaf69e","md":"#7b8923"},{"vol":"B","module":"Module 3","moduleNum":3,"title":"Unit 1 Where's the orange cat?","id":"2f0379b8-57bc-3986-a33d-227ec517f5f3","resId":"ff808081-5ce8-a1f4-015c-e8c42f4d0236","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=ff808081-5ce8-a1f4-015c-e8c42f4d0236&chapterId=2f0379b8-57bc-3986-a33d-227ec517f5f3&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#d4ec3c","ml":"#eaf69e","md":"#7b8923"},{"vol":"B","module":"Module 3","moduleNum":3,"title":"Unit 2 How many green birds?","id":"a21d7e3a-70b3-3a68-a9a6-e45807a3473c","resId":"8aee80a3-6396-9163-0163-a1fd856a13a4","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80a3-6396-9163-0163-a1fd856a13a4&chapterId=a21d7e3a-70b3-3a68-a9a6-e45807a3473c&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#d4ec3c","ml":"#eaf69e","md":"#7b8923"},{"vol":"A","module":"Module 4","moduleNum":4,"title":"Unit 1 It's red.","id":"1ec91103-6d98-353f-a2b1-ea16b74bb857","resId":"8ae7e4a9-83d5-d033-0183-e9048fd03c3d","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae7e4a9-83d5-d033-0183-e9048fd03c3d&chapterId=1ec91103-6d98-353f-a2b1-ea16b74bb857&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"A","module":"Module 4","moduleNum":4,"title":"Unit 2 It's a red dog.","id":"c81cb42a-7919-3789-ab6e-e3512eec86f3","resId":"8aee800b-6a65-c45f-016a-672ac0160c7d","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee800b-6a65-c45f-016a-672ac0160c7d&chapterId=c81cb42a-7919-3789-ab6e-e3512eec86f3&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"A","module":"Module 4","moduleNum":4,"title":"Unit 2 These are your eyes.","id":"68493b49-0ee1-3f37-8a5a-03f04319735d","resId":"8ae7e498-83ee-579e-0183-ee810e280082","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae7e498-83ee-579e-0183-ee810e280082&chapterId=68493b49-0ee1-3f37-8a5a-03f04319735d&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"B","module":"Module 4","moduleNum":4,"title":"Unit 1 This is my head.","id":"78d6d43c-9402-3bee-bd5e-8c7267c7690f","resId":"77f907ca-c39d-4251-5c28-a9e8913a7fd4","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=77f907ca-c39d-4251-5c28-a9e8913a7fd4&chapterId=78d6d43c-9402-3bee-bd5e-8c7267c7690f&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"B","module":"Module 4","moduleNum":4,"title":"Unit 2 These are your eyes.","id":"68493b49-0ee1-3f37-8a5a-03f04319735d","resId":"8ae7e498-83ee-579e-0183-ee810e280082","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae7e498-83ee-579e-0183-ee810e280082&chapterId=68493b49-0ee1-3f37-8a5a-03f04319735d&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"B","module":"Module 5","moduleNum":5,"title":"Unit 1 They're cows.","id":"098ca48c-4edf-38a4-9c22-f19ba46b282a","resId":"108198bb-37e3-7552-006f-c51341929af5","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=108198bb-37e3-7552-006f-c51341929af5&chapterId=098ca48c-4edf-38a4-9c22-f19ba46b282a&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3cec6b","ml":"#9ef6b5","md":"#23893e"},{"vol":"B","module":"Module 5","moduleNum":5,"title":"Unit 2 It's thin.","id":"a0c97611-082e-33cc-a044-fa70b8eef550","resId":"0bcadc74-f215-7a70-4b1b-18a7368be96c","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=0bcadc74-f215-7a70-4b1b-18a7368be96c&chapterId=a0c97611-082e-33cc-a044-fa70b8eef550&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3cec6b","ml":"#9ef6b5","md":"#23893e"},{"vol":"A","module":"Module 6","moduleNum":6,"title":"Unit 1 What's this?","id":"03dd2c14-479f-37cb-8740-06ca2f2b1679","resId":"8aee80f9-6a65-c3f8-016a-666ac0ff0090","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80f9-6a65-c3f8-016a-666ac0ff0090&chapterId=03dd2c14-479f-37cb-8740-06ca2f2b1679&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"A","module":"Module 6","moduleNum":6,"title":"Unit 2 It's my ruler.","id":"29ec96ce-88ad-3b74-b5d3-d84bb61d94bf","resId":"8ae7e48e-83d5-cf1c-0183-eb76fe394ad1","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae7e48e-83d5-cf1c-0183-eb76fe394ad1&chapterId=29ec96ce-88ad-3b74-b5d3-d84bb61d94bf&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"B","module":"Module 6","moduleNum":6,"title":"Unit 1  These snakes are short.","id":"c5e2f4bb-2873-35cc-b84e-98115d96d13e","resId":"a5283935-cf0b-f716-1e4d-3405f439d328","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=a5283935-cf0b-f716-1e4d-3405f439d328&chapterId=c5e2f4bb-2873-35cc-b84e-98115d96d13e&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"B","module":"Module 6","moduleNum":6,"title":"Unit 2 They are little and cute.","id":"f4f519d7-7a8d-309c-8627-20f5458b4707","resId":"ff808081-5ce8-d35e-015c-ec68c27c18ef","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=ff808081-5ce8-d35e-015c-ec68c27c18ef&chapterId=f4f519d7-7a8d-309c-8627-20f5458b4707&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"A","module":"Module 7","moduleNum":7,"title":"Unit 1 Is it a dog?","id":"5f58b62d-1570-3e00-a1c4-5f5ab320ad08","resId":"8aee80bf-6a23-88cd-016a-23ed67750357","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80bf-6a23-88cd-016a-23ed67750357&chapterId=5f58b62d-1570-3e00-a1c4-5f5ab320ad08&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#3ca5ec","ml":"#9ed2f6","md":"#236089"},{"vol":"B","module":"Module 7","moduleNum":7,"title":"Unit 1 There is a cat in the tree.","id":"e58eaeb2-6457-39e5-8ebd-eaf11ddd48d2","resId":"8ae7e4ab-83f9-d188-0184-0d8ac8fa1f45","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae7e4ab-83f9-d188-0184-0d8ac8fa1f45&chapterId=e58eaeb2-6457-39e5-8ebd-eaf11ddd48d2&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3ca5ec","ml":"#9ed2f6","md":"#236089"},{"vol":"B","module":"Module 7","moduleNum":7,"title":"Unit 2 There are three brown monkeys.","id":"515fe8a2-ca81-31ae-a753-1459a1cda2b3","resId":"8ae7e49d-83ee-36c5-0183-ee3f260f0020","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae7e49d-83ee-36c5-0183-ee3f260f0020&chapterId=515fe8a2-ca81-31ae-a753-1459a1cda2b3&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3ca5ec","ml":"#9ed2f6","md":"#236089"},{"vol":"A","module":"Module 8","moduleNum":8,"title":"Unit 2 How many pink balls?","id":"4f52f3bd-d045-37ac-b612-f7aa88a05f2c","resId":"f62e7b6b-2d3a-aaa6-bc99-d64caf6c1fe5","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=f62e7b6b-2d3a-aaa6-bc99-d64caf6c1fe5&chapterId=4f52f3bd-d045-37ac-b612-f7aa88a05f2c&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#3c42ec","ml":"#9ea1f6","md":"#232689"},{"vol":"B","module":"Module 8","moduleNum":8,"title":"Unit 1 There's a pair of shorts under that duck.","id":"ad7b4251-6767-3ec5-b764-329f1ff317a2","resId":"8aee809d-6a56-4dc4-016a-58112ed5098f","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee809d-6a56-4dc4-016a-58112ed5098f&chapterId=ad7b4251-6767-3ec5-b764-329f1ff317a2&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#3c42ec","ml":"#9ea1f6","md":"#232689"},{"vol":"A","module":"Module 9","moduleNum":9,"title":"Unit 1 How old are you?","id":"f77069a7-a7ad-3e25-bb17-c6604fdf9de7","resId":"8ae68b84-4a61-aae8-014a-6c4dcddc3dc4","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8ae68b84-4a61-aae8-014a-6c4dcddc3dc4&chapterId=f77069a7-a7ad-3e25-bb17-c6604fdf9de7&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"A","module":"Module 9","moduleNum":9,"title":"Unit 2 Happy birthday!","id":"e4a59458-107b-3fc3-b99b-9811315bf782","resId":"7c718c5c-6435-11ab-4a87-e4bd11791bd0","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=7c718c5c-6435-11ab-4a87-e4bd11791bd0&chapterId=e4a59458-107b-3fc3-b99b-9811315bf782&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"B","module":"Module 9","moduleNum":9,"title":"Unit 1 I like football.","id":"ef27e4dd-659b-39ac-b7ea-6400b7e71882","resId":"ff808081-574b-a254-0157-4c5afe191298","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=ff808081-574b-a254-0157-4c5afe191298&chapterId=ef27e4dd-659b-39ac-b7ea-6400b7e71882&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"B","module":"Module 9","moduleNum":9,"title":"Unit 2 What's your favourite sport?","id":"dc0591b8-137a-31fe-9911-d0509ec2e91d","resId":"d3395bda-5bb3-c689-01c2-860d68d8fe7b","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=d3395bda-5bb3-c689-01c2-860d68d8fe7b&chapterId=dc0591b8-137a-31fe-9911-d0509ec2e91d&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"A","module":"Module 10","moduleNum":10,"title":"Unit 1 That is my father.","id":"93b3b491-4d6f-3d36-b49b-e4bc92354c36","resId":"507502ea-3a4c-4dcd-5152-9e27f361c1c8","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=507502ea-3a4c-4dcd-5152-9e27f361c1c8&chapterId=93b3b491-4d6f-3d36-b49b-e4bc92354c36&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#ec3cda","ml":"#f69eed","md":"#89237e"},{"vol":"B","module":"Module 10","moduleNum":10,"title":"Unit 1 Let's play football.","id":"3b71d0ec-8420-3c53-8d5e-52f53e0fffd9","resId":"8aee809c-6a1e-5f0c-016a-1f72793903a9","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee809c-6a1e-5f0c-016a-1f72793903a9&chapterId=3b71d0ec-8420-3c53-8d5e-52f53e0fffd9&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#ec3cda","ml":"#f69eed","md":"#89237e"},{"vol":"A","module":"Review Module","moduleNum":11,"title":"Review Module","id":"889dee65-cd97-39a8-8d43-c3587fdad537","resId":"8aee80c9-6a60-9d5e-016a-62bbf2e10bdf","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80c9-6a60-9d5e-016a-62bbf2e10bdf&chapterId=889dee65-cd97-39a8-8d43-c3587fdad537&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#9aa7c7","ml":"#cdd3e3","md":"#596173"},{"vol":"B","module":"Review Module","moduleNum":11,"title":"Unit 1","id":"0885a1ea-95c9-31ff-8781-cd89f28fa914","resId":"8aee80ce-63c9-a084-0163-cd9decf70e04","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80ce-63c9-a084-0163-cd9decf70e04&chapterId=0885a1ea-95c9-31ff-8781-cd89f28fa914&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#9aa7c7","ml":"#cdd3e3","md":"#596173"},{"vol":"B","module":"Review Module","moduleNum":11,"title":"Unit 2","id":"9c503432-ed17-3e93-87ac-1c76701039f9","resId":"8aee80c4-6a24-5956-016a-24824db400f4","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80c4-6a24-5956-016a-24824db400f4&chapterId=9c503432-ed17-3e93-87ac-1c76701039f9&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#9aa7c7","ml":"#cdd3e3","md":"#596173"},{"vol":"A","module":"Project","moduleNum":13,"title":"Numbers","id":"128722c5-d099-364f-a3c0-2785e7c43e24","resId":"ff808081-57a3-01c4-0157-a4cb61d82228","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=ff808081-57a3-01c4-0157-a4cb61d82228&chapterId=128722c5-d099-364f-a3c0-2785e7c43e24&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#2ecc71","ml":"#97e6b8","md":"#1b7642"},{"vol":"B","module":"Project","moduleNum":13,"title":"Things We Like","id":"74597c41-10ea-3899-a1be-501346a720a5","resId":"8aee80bf-6a1e-61f9-016a-1f42e51305d5","resType":"prepare_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=8aee80bf-6a1e-61f9-016a-1f42e51305d5&chapterId=74597c41-10ea-3899-a1be-501346a720a5&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1","mc":"#2ecc71","ml":"#97e6b8","md":"#1b7642"},{"vol":"A","module":"其他","moduleNum":14,"title":"Unit 2 That is a yellow cat","id":"1cdc0f4a-405d-39fc-949e-9f395890cab9","resId":"e8b5a921-0974-53bd-0d2f-2f3cd6f1a5ba","resType":"elite_lesson","url":"https://basic.smartedu.cn/syncClassroom/classActivity?activityId=e8b5a921-0974-53bd-0d2f-2f3cd6f1a5ba&chapterId=1cdc0f4a-405d-39fc-949e-9f395890cab9&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1","mc":"#b388ff","ml":"#d9c4ff","md":"#684f94"}];
+
+(function(){ var s=document.getElementById('stars'),h=''; for(var i=0;i<110;i++){ var sz=(Math.random()*2+1).toFixed(1); h+='<div style="position:absolute;left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*100).toFixed(2)+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:rgba(255,255,255,'+(Math.random()*.5+.3).toFixed(2)+');box-shadow:0 0 '+(sz*2)+'px rgba(180,210,255,.7);"></div>'; } s.innerHTML=h; })();
+
+var N=KNOWLEDGE.length;
+document.getElementById('cnt').textContent=N;
+
+var spin=document.getElementById('spin');
+var nodeEls=[];
+var R=150, VSTEP=22, TURN=0.62;   /* 每节点绕轴角度(弧度) ≈ 35.5° */
+var yMax=(N-1)/2*VSTEP;
+var Rmax=Math.sqrt(R*R+yMax*yMax);
+
+/* 中心光柱高度 = 螺旋总高 + 留白 */
+document.getElementById('core').style.height=(yMax*2+70)+'px';
+
+KNOWLEDGE.forEach(function(k,i){
+  var t=i;                       /* 索引进螺旋 */
+  var ang=t*TURN;
+  var y=(i-(N-1)/2)*VSTEP;
+  var x=Math.cos(ang)*R;
+  var z=Math.sin(ang)*R;
+  var el=document.createElement('div');
+  el.className='node';
+  el.innerHTML='<div class="ball"></div><div class="label">'+k.title+'</div>';
+  el.style.setProperty('--mc',k.mc);
+  el.querySelector('.ball').style.background='radial-gradient(circle at 33% 30%, '+k.ml+', '+k.mc+' 60%, '+k.md+')';
+  el.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,'+z.toFixed(1)+'px)';
+  spin.appendChild(el);
+  nodeEls.push({el:el,k:k,x:x,y:y,z:z,lab:el.querySelector('.label'),hover:false});
+});
+
+/* tooltip */
+var tip=document.getElementById('tooltip'), cur=null;
+nodeEls.forEach(function(n){
+  n.el.addEventListener('mouseenter',function(e){cur=n;show(e,n);tip.style.opacity=1;});
+  n.el.addEventListener('mousemove',function(e){if(cur===n)show(e,n);});
+  n.el.addEventListener('mouseleave',function(){tip.style.opacity=0;cur=null;});
+});
+function show(e,n){
+  tip.innerHTML='<div class="t-name">'+n.k.title+'</div><div class="t-mod">'+(n.k.vol==='A'?'一年级上册':'一年级下册')+' · '+n.k.module+'</div><div class="t-go">➜ 点击打开国家平台 · '+n.k.module+' 课时讲解</div>';
+  var xx=e.clientX+16, yy=e.clientY-8;
+  if(xx+tip.offsetWidth>window.innerWidth-8) xx=e.clientX-tip.offsetWidth-16;
+  if(yy+tip.offsetHeight>window.innerHeight-8) yy=window.innerHeight-tip.offsetHeight-8;
+  tip.style.left=xx+'px'; tip.style.top=yy+'px';
+}
+var dragMoved=false;
+nodeEls.forEach(function(n){ n.el.addEventListener('click',function(){ if(dragMoved){dragMoved=false;return;} window.open(n.k.url,'_blank'); }); });
+
+/* 旋转：慢速摆荡 + 拖拽 + billboard + 深度淡出 */
+var stage=document.getElementById('stage');
+var ry=-24, rx=-6, ryBase=-24, rxBase=-6, auto=true, dragging=false;
+var lx=0,ly=0,dx0=0,dy0=0, swingT=0, lastTs=0, idleTimer=null, lastTap=0;
+var SW_Y_AMP=16, SW_Y_T=42, SW_X_AMP=3, SW_X_T=28;
+var LAB_ON=0.55, LAB_FULL=0.70;
+var lastRy=1e9, lastRx=1e9;
+
+function apply(){
+  if(Math.abs(ry-lastRy)<0.04 && Math.abs(rx-lastRx)<0.04) return;
+  lastRy=ry; lastRx=rx;
+  var t='rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg)';
+  spin.style.transform=t;
+  var bt='translateX(-50%) rotateY('+(-ry).toFixed(2)+'deg) rotateX('+(-rx).toFixed(2)+'deg)';
+  var crx=rx*Math.PI/180, cry=ry*Math.PI/180;
+  var cy=Math.cos(cry), sy=Math.sin(cry), cx=Math.cos(crx), sx=Math.sin(crx);
+  for(var i=0;i<nodeEls.length;i++){
+    var n=nodeEls[i];
+    var z1=-n.x*sy+n.z*cy;
+    var z2=n.y*sx+z1*cx;
+    var o=(z2+Rmax)/(2*Rmax); if(o<0)o=0; else if(o>1)o=1;
+    n.el.style.opacity=(0.18+0.82*Math.pow(o,1.5)).toFixed(3);
+    var lo=(o-LAB_ON)/(LAB_FULL-LAB_ON); if(lo<0)lo=0; else if(lo>1)lo=1;
+    if(n.hover) lo=1;
+    n.lab.style.opacity=lo.toFixed(3);
+    if(lo>0.001) n.lab.style.transform=bt;
+  }
+}
+function swing(now){
+  var dt=lastTs?Math.min(0.05,(now-lastTs)/1000):0; lastTs=now;
+  if(auto&&!dragging){ swingT+=dt; ry=ryBase+Math.sin(swingT*(2*Math.PI/SW_Y_T))*SW_Y_AMP; rx=rxBase+Math.sin(swingT*(2*Math.PI/SW_X_T))*SW_X_AMP; apply(); }
+  requestAnimationFrame(swing);
+}
+function beginDrag(x,y){ dragging=true; auto=false; clearTimeout(idleTimer); lx=x; ly=y; dx0=x; dy0=y; stage.classList.add('dragging'); }
+function moveDrag(x,y){ if(!dragging)return; if(Math.abs(x-dx0)+Math.abs(y-dy0)>5)dragMoved=true; ryBase+=(x-lx)*0.32; rxBase+=(y-ly)*0.22; if(rxBase>85)rxBase=85; else if(rxBase<-85)rxBase=-85; ry=ryBase; rx=rxBase; lx=x; ly=y; apply(); }
+function endDrag(){ if(!dragging)return; dragging=false; stage.classList.remove('dragging'); clearTimeout(idleTimer); idleTimer=setTimeout(function(){swingT=0;auto=true;},5000); }
+stage.addEventListener('mousedown',function(e){ dragMoved=false; if(e.target.closest('.node'))return; beginDrag(e.clientX,e.clientY); });
+window.addEventListener('mousemove',function(e){moveDrag(e.clientX,e.clientY);});
+window.addEventListener('mouseup',endDrag);
+stage.addEventListener('touchstart',function(e){ dragMoved=false; if(e.target.closest('.node'))return; var tt=e.touches[0]; beginDrag(tt.clientX,tt.clientY); },{passive:true});
+window.addEventListener('touchmove',function(e){ if(!dragging)return; var tt=e.touches[0]; moveDrag(tt.clientX,tt.clientY); e.preventDefault(); },{passive:false});
+window.addEventListener('touchend',function(e){ if(!dragMoved){ var now=Date.now(); if(now-lastTap<330){resetView();lastTap=0;} else lastTap=now; } endDrag(); },{passive:true});
+window.addEventListener('touchcancel',endDrag);
+function resetView(){ ryBase=-24; rxBase=-6; swingT=0; auto=true; clearTimeout(idleTimer); ry=ryBase; rx=rxBase; lastRy=1e9; apply(); }
+stage.addEventListener('dblclick',resetView);
+nodeEls.forEach(function(n){ n.el.addEventListener('mouseenter',function(){n.hover=true;lastRy=1e9;apply();}); n.el.addEventListener('mouseleave',function(){n.hover=false;lastRy=1e9;apply();}); });
+
+/* 自适应布局 */
+var sceneEl=document.getElementById('scene'), legendEl=document.getElementById('legend');
+function layout(){
+  var w=window.innerWidth, h=window.innerHeight;
+  var legendW=(getComputedStyle(legendEl).display==='none')?0:legendEl.offsetWidth;
+  var shift=-legendW/2;
+  var hudH=(h<700)?88:112;
+  var margin=16, labelHalfW=58, labelBelow=30;
+  var availHalfW=(w-legendW)/2 - margin - labelHalfW;
+  var availHalfH=(h-hudH)/2 - margin - labelBelow;
+  var sByW=availHalfW/(R+labelHalfW);
+  var sByH=availHalfH/(yMax+labelBelow+10);
+  var s=Math.min(sByW,sByH); if(s>1)s=1; if(s<0.3)s=0.3;
+  sceneEl.style.transform='translateX('+shift.toFixed(1)+'px) scale('+s.toFixed(3)+')';
+}
+layout(); apply(); requestAnimationFrame(swing);
+var rzT=null;
+function relayout(){ clearTimeout(rzT); rzT=setTimeout(function(){layout();lastRy=1e9;apply();},100); }
+window.addEventListener('resize',relayout);
+window.addEventListener('orientationchange',function(){clearTimeout(rzT);rzT=setTimeout(function(){layout();lastRy=1e9;apply();},300);});
+if(window.visualViewport) window.visualViewport.addEventListener('resize',relayout);
+
+/* 图例：册次 → Module → 课节 */
+(function(){
+  var body=document.getElementById('legendBody'), html='';
+  ['A','B'].forEach(function(vol){
+    html+='<div class="lg-vol">'+(vol==='A'?'一年级 · 上册':'一年级 · 下册')+'</div>';
+    var seen=[], map={};
+    KNOWLEDGE.forEach(function(k){ if(k.vol!==vol)return; if(!map[k.module]){map[k.module]=[];seen.push(k.module);} map[k.module].push(k); });
+    seen.forEach(function(mod,mi){
+      var lessons=map[mod];
+      html+='<div class="lg-mod" data-t="'+vol+mi+'"><span class="lg-dot" style="background:'+lessons[0].mc+'"></span>'+mod+' <span style="color:rgba(255,255,255,.45);font-size:11px">('+lessons.length+')</span><span class="lg-caret">▸</span></div>';
+      html+='<div class="lg-lessons" id="lg-'+vol+mi+'">';
+      lessons.forEach(function(k,li){ html+='<div class="lg-lesson" data-u="'+k.url+'">'+(li+1)+'. '+k.title+'</div>'; });
+      html+='</div>';
+    });
+  });
+  body.innerHTML=html;
+  body.querySelectorAll('.lg-mod').forEach(function(el){ el.addEventListener('click',function(){ var box=document.getElementById('lg-'+el.dataset.t); var open=box.classList.toggle('open'); el.querySelector('.lg-caret').style.transform=open?'rotate(90deg)':''; }); });
+  body.querySelectorAll('.lg-lesson').forEach(function(el){ el.addEventListener('click',function(){window.open(el.dataset.u,'_blank');}); });
+})();
+</script>
+</body>
+</html>
