@@ -148,8 +148,8 @@
             .lg-lesson { padding: 7px 8px; }
         }
 
-        /* 顶部跨页导航 */
-        #nav { position: fixed; top: 13px; left: 14px; z-index: 6; display: flex; gap: 8px; }
+        /* 顶部跨页导航（纵向排列，避免与居中标题冲突） */
+        #nav { position: fixed; top: 13px; left: 14px; z-index: 6; display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
         #nav a { padding: 5px 11px; border-radius: 18px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.9); font-size: 12px; text-decoration: none; letter-spacing: .5px; backdrop-filter: blur(6px); transition: background .15s, border-color .15s; }
         #nav a:hover { background: rgba(255,210,74,.18); border-color: rgba(255,210,74,.5); color: #ffe08a; }
         #nav a.cur { background: rgba(255,210,74,.2); border-color: rgba(255,210,74,.55); color: #ffe08a; font-weight: bold; }
@@ -158,8 +158,9 @@
 </head>
 <body>
     <div id="nav">
-        <a href="fltrp/" target="_self">外研社英语 3D →</a>
-        <a href="https://shaka19190918.github.io/youxiao-xianjie/" target="_blank" rel="noopener">幼小衔接快乐营 →</a>
+        <a href="https://shaka19190918.github.io/" target="_self">← 全部站点</a>
+        <a href="fltrp/" target="_self">英语 3D →</a>
+        <a href="https://shaka19190918.github.io/youxiao-xianjie/" target="_blank" rel="noopener">幼小衔接 →</a>
     </div>
     <div id="stars"></div>
     <div id="stage">
