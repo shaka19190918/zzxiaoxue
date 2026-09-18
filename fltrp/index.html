@@ -517,6 +517,7 @@ el.style.background=i===state.modIdx?'linear-gradient(135deg,'+m.color+','+m.col
 if(i===state.modIdx){el.style.color='#FFF';}else{el.style.color='var(--tx2)';}
 el.innerHTML='<span class="il-ck">✅</span><span class="il-em">'+m.emoji+'</span><div class="il-nm">'+m.name.replace('Module ','M')+'</div><div class="il-prog"><span style="width:'+pct+'%"></span></div>';
 el.addEventListener('click',function(){
+cancelAutoAdvance();
 state.modIdx=i;save();
 mascotMsg('start',{title:m.title});
 renderAll();
@@ -631,7 +632,8 @@ list.appendChild(c);
 }
 
 /* GAME 1: See image, pick English word */
-function lgNewQ(){
+function lgNewQ(autoSpeak){
+if(autoSpeak===undefined) autoSpeak=true;
 var m=curMod();
 var pool=m.vocab.slice();
 if(pool.length<2)return;
@@ -646,7 +648,7 @@ while(wrongs.length<3&&extra.length>0)wrongs.push(extra.shift());
 var opts=[correct].concat(wrongs).sort(function(){return Math.random()-0.5;});
 document.getElementById('lgEm').textContent=correct.em;
 document.getElementById('lgQ').innerHTML='<span class="big-em">'+correct.em+'</span><span class="q-text">这是哪个单词？</span>';
-speak(correct.en);
+if(autoSpeak) speak(correct.en);
 var box=document.getElementById('lgOpts');
 box.innerHTML='';
 opts.forEach(function(o){
@@ -689,26 +691,35 @@ document.getElementById('lgFb').innerHTML='<span class="fb-em">🎯</span> 选�
 document.getElementById('lgNext').style.display='none';
 }
 
+/* Auto-advance state flags */
+var autoAdvance={lg:false,pg:false};
+
 /* Auto-advance for GAME 1: correct answer -> next question after 1.2s */
 function lgAutoAdvance(){
-if(state.lgStreak>0){
+autoAdvance.lg=true;
 setTimeout(function(){
-if(document.getElementById('lgNext').style.display==='block'){
-lgNewQ();
+if(autoAdvance.lg){
+lgNewQ(true);
+autoAdvance.lg=false;
 }
 },1200);
-}
 }
 
 /* Auto-advance for GAME 2: correct answer -> next question after 1.2s */
 function pgAutoAdvance(){
-if(state.pgStreak>0){
+autoAdvance.pg=true;
 setTimeout(function(){
-if(document.getElementById('pgNext').style.display==='block'){
+if(autoAdvance.pg){
 pgNewQ();
+autoAdvance.pg=false;
 }
 },1200);
 }
+
+/* Cancel auto-advance when user manually clicks next or changes module */
+function cancelAutoAdvance(){
+autoAdvance.lg=false;
+autoAdvance.pg=false;
 }
 
 /* GAME 2: Listen, pick image */
@@ -811,7 +822,7 @@ renderIslands();
 renderHero();
 renderVocab();
 renderSents();
-lgNewQ();
+lgNewQ(false);
 pgNewQ();
 renderProgress();
 }
@@ -819,8 +830,8 @@ renderProgress();
 /* INIT */
 document.addEventListener('DOMContentLoaded',function(){
 renderAll();
-document.getElementById('lgNextBtn').addEventListener('click',lgNewQ);
-document.getElementById('pgNextBtn').addEventListener('click',pgNewQ);
+document.getElementById('lgNextBtn').addEventListener('click',function(){cancelAutoAdvance();lgNewQ(true);});
+document.getElementById('pgNextBtn').addEventListener('click',function(){cancelAutoAdvance();pgNewQ();});
 document.getElementById('pgPlay').addEventListener('click',function(){
 var playBtn=document.getElementById('pgPlay');
 playBtn.classList.add('playing');
