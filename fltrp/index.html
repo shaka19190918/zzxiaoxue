@@ -1,261 +1,530 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>外研社版（一年级起点）· 小学英语 3D 螺旋课节</title>
-<meta name="description" content="外研社版（一年级起点，主编：陈琳）小学英语上下册官方精品课 3D 螺旋知识图谱，点击任一课节直达国家中小学智慧教育平台对应课时讲解。">
-<meta name="theme-color" content="#0a0f1e">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="外研社英语3D">
-<meta property="og:title" content="外研社版（一年级起点）· 小学英语 3D 螺旋课节">
-<meta property="og:description" content="官方精品课 · 点击课节直达国家中小学智慧教育平台">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230a0f1e'/%3E%3Cpath d='M14 46 Q32 10 50 46' stroke='%2335bcec' stroke-width='4' fill='none'/%3E%3Ccircle cx='20' cy='40' r='5' fill='%23ff9a2e'/%3E%3Ccircle cx='32' cy='29' r='5' fill='%2384d944'/%3E%3Ccircle cx='44' cy='40' r='5' fill='%23f5cf1f'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#4FC3F7">
+<title>外研社英语 · 一年级互动学堂</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; overflow:hidden; background:radial-gradient(ellipse at center, #13203c 0%, #0a0f1e 58%, #04070f 100%); font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; }
-body { user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
-#stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
-
-#stage { position:fixed; inset:0; z-index:1; perspective:1500px; cursor:grab; touch-action:none; }
-#stage.dragging { cursor:grabbing; }
-#scene { position:absolute; left:50%; top:50%; width:0; height:0; transform-style:preserve-3d; }
-#spin { position:absolute; left:0; top:0; width:0; height:0; transform-style:preserve-3d; }
-
-/* 中心光柱（学习主轴） */
-#core { position:absolute; left:-3px; top:0; width:6px; height:0; border-radius:6px;
-  background:linear-gradient(to bottom, rgba(120,180,255,0) 0%, rgba(120,180,255,.55) 12%, rgba(150,210,255,.7) 50%, rgba(120,180,255,.55) 88%, rgba(120,180,255,0) 100%);
-  box-shadow:0 0 26px rgba(120,180,255,.5); transform:translateY(-50%); }
-/* 底座光环 */
-#base { position:absolute; left:-150px; top:0; width:300px; height:80px; border-radius:50%;
-  border:1px solid rgba(140,190,255,.2); background:radial-gradient(ellipse at center, rgba(60,120,220,.18), rgba(60,120,220,0) 70%); transform:translateY(0) rotateX(78deg); }
-
-/* 课节节点 */
-.node { position:absolute; left:0; top:0; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; transform-style:preserve-3d; cursor:pointer; }
-.node .ball { position:absolute; inset:0; border-radius:50%; box-shadow:inset -3px -4px 8px rgba(0,0,0,.5), inset 2px 3px 6px rgba(255,255,255,.55), 0 3px 9px rgba(0,0,0,.55); }
-.node .ball::after { content:""; position:absolute; top:12%; left:20%; width:32%; height:24%; border-radius:50%; background:rgba(255,255,255,.82); filter:blur(1.5px); transform:rotate(-25deg); }
-.node:hover { z-index:999; }
-.node:hover .ball { box-shadow:0 0 0 3px rgba(255,255,255,.92), 0 0 22px rgba(255,255,255,.8), inset -3px -4px 8px rgba(0,0,0,.5); }
-
-.node .label {
-  position:absolute; left:50%; top:100%; transform:translateX(-50%);
-  margin-top:4px; max-width:158px; padding:1px 7px; border-radius:8px;
-  background:rgba(6,13,30,.82); border:1px solid rgba(140,185,255,.28); color:#e6eeff;
-  font-size:10.5px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  pointer-events:none; box-shadow:0 1px 5px rgba(0,0,0,.4); letter-spacing:.2px; opacity:0;
-  transition:color .12s, border-color .12s, background .12s;
-}
-.node:hover .label { color:#ffd24a; border-color:rgba(255,210,74,.55); background:rgba(20,30,56,.94); }
-
-/* HUD */
-#hud { position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:5; text-align:center; pointer-events:none; }
-#hud h1 { font-size:22px; color:#fff; letter-spacing:1.5px; text-shadow:0 2px 14px rgba(90,150,255,.5); }
-#hud .sub { margin-top:5px; font-size:12px; color:rgba(255,255,255,.72); }
-#hud .sub b { color:#ffd24a; }
-#hint { display:inline-block; margin-top:8px; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.85); font-size:12px; }
-#hint.amber { background:rgba(255,210,74,.14); border-color:rgba(255,210,74,.4); color:#ffe08a; }
-
-#tooltip { position:fixed; z-index:9; max-width:320px; padding:9px 13px; border-radius:10px; background:rgba(8,15,32,.96); border:1px solid rgba(120,170,255,.5); color:#fff; font-size:13px; line-height:1.6; box-shadow:0 8px 28px rgba(0,0,0,.6); opacity:0; pointer-events:none; transition:opacity .12s; }
-#tooltip .t-name { font-size:14px; font-weight:bold; color:#ffd24a; }
-#tooltip .t-mod { color:rgba(255,255,255,.7); font-size:12px; }
-#tooltip .t-go { margin-top:3px; color:#6fb4ff; font-size:11px; }
-
-/* 图例 */
-#legend { position:fixed; right:0; top:0; bottom:0; z-index:5; width:272px; padding:14px 10px 14px 14px; background:rgba(255,255,255,.06); border-left:1px solid rgba(255,255,255,.13); backdrop-filter:blur(8px); display:flex; flex-direction:column; }
-#legend h3 { color:#fff; font-size:13px; letter-spacing:2px; margin-bottom:8px; }
-#legendBody { flex:1; overflow-y:auto; padding-right:6px; }
-#legendBody::-webkit-scrollbar { width:5px; }
-#legendBody::-webkit-scrollbar-thumb { background:rgba(255,255,255,.22); border-radius:3px; }
-.lg-vol { margin:10px 0 4px; font-size:12px; font-weight:bold; color:#ffd24a; letter-spacing:1px; border-bottom:1px solid rgba(255,255,255,.14); padding-bottom:4px; }
-.lg-mod { display:flex; align-items:center; gap:7px; padding:5px 6px; margin:2px 0; border-radius:6px; color:rgba(255,255,255,.92); font-size:12px; cursor:pointer; }
-.lg-mod:hover { background:rgba(255,255,255,.12); }
-.lg-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.lg-caret { margin-left:auto; font-size:10px; color:rgba(255,255,255,.5); transition:transform .18s; }
-.lg-lessons { display:none; margin:2px 0 6px 18px; }
-.lg-lessons.open { display:block; }
-.lg-lesson { padding:4px 8px; margin:1px 0; border-radius:5px; font-size:12px; color:rgba(255,255,255,.75); cursor:pointer; line-height:1.4; }
-.lg-lesson:hover { background:rgba(120,180,255,.22); color:#fff; }
-
-#src { position:fixed; left:14px; bottom:12px; z-index:5; max-width:320px; padding:9px 12px; border-radius:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.62); font-size:11px; line-height:1.65; }
-#src a { color:#7cc0ff; text-decoration:none; }
-
-@media (max-width:1280px){ #legend { width:218px; padding:12px 8px 12px 11px; } #legend h3{font-size:12px;} .lg-mod,.lg-lesson{font-size:11.5px;} }
-@media (max-width:860px){ #legend{display:none;} #src{display:none;} #hud h1{font-size:17px;} #hud .sub{font-size:11px;} }
-@media (max-height:700px){ #hud{top:8px;} #hud h1{font-size:17px; letter-spacing:1px;} #hud .sub{margin-top:3px; font-size:11px;} #hint{margin-top:5px; padding:3px 10px; font-size:11px;} }
-@media (pointer:coarse){ .node::before{content:""; position:absolute; inset:-12px; border-radius:50%;} .node .label{font-size:11px; max-width:150px;} #legendBody{-webkit-overflow-scrolling:touch;} .lg-lesson{padding:7px 8px;} }
-
-#nav { position:fixed; top:13px; left:14px; z-index:6; display:flex; flex-direction:column; align-items:flex-start; gap:7px; }
-#nav a { padding:5px 11px; border-radius:18px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); color:rgba(255,255,255,.9); font-size:12px; text-decoration:none; letter-spacing:.5px; backdrop-filter:blur(6px); transition:background .15s, border-color .15s; }
-#nav a:hover { background:rgba(255,210,74,.18); border-color:rgba(255,210,74,.5); color:#ffe08a; }
-#nav a.cur { background:rgba(255,210,74,.2); border-color:rgba(255,210,74,.55); color:#ffe08a; font-weight:bold; }
-@media (max-width:860px){ #nav{top:10px;left:10px;} #nav a{padding:4px 9px; font-size:11px;} }
+:root{--pri:#4FC3F7;--pri-d:#0288D1;--pri-l:#E3F2FD;--accent:#FFD567;--accent-d:#FFA726;--bg:#F0F8FF;--card:#FFF;--txt:#1A237E;--tx2:#5C6BC0;--good:#69C98C;--bad:#EF5350;--r:20px;--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;user-select:none;-webkit-user-select:none}
+#app{max-width:960px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{position:sticky;top:0;z-index:100;background:linear-gradient(120deg,#4FC3F7,#29B6F6);padding:12px 18px;padding-top:max(12px,var(--st));display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 18px rgba(2,136,209,.25)}
+.hdr .back{font-size:20px;color:#FFF;cursor:pointer;text-decoration:none;padding:4px 8px;border-radius:8px;transition:background .15s}
+.hdr .back:hover{background:rgba(255,255,255,.2)}
+.hdr h1{font-size:17px;font-weight:800;color:#FFF;letter-spacing:.5px;flex:1;text-align:center}
+.hdr .stars{font-size:14px;color:#FFF;font-weight:700;background:rgba(255,255,255,.25);padding:4px 12px;border-radius:16px;white-space:nowrap}
+.main{padding:14px 16px;padding-bottom:calc(60px+var(--sb));flex:1}
+/* Module selector */
+.mod-bar{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 10px;scrollbar-width:thin}
+.mod-bar::-webkit-scrollbar{height:4px}
+.mod-bar::-webkit-scrollbar-thumb{background:var(--pri);border-radius:2px}
+.mod-tab{flex:0 0 auto;padding:8px 14px;border-radius:14px;border:2px solid #E0E0E0;background:#FFF;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;color:var(--tx2)}
+.mod-tab.on{background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#FFF;border-color:transparent;box-shadow:0 3px 10px rgba(2,136,209,.3)}
+.mod-tab .star{color:var(--accent-d)}
+/* Welcome / hero */
+.hero{background:linear-gradient(135deg,var(--pri),var(--pri-d));border-radius:var(--r);padding:22px 20px;color:#FFF;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1)}
+.hero h2{font-size:20px;margin-bottom:6px;position:relative;z-index:1}
+.hero p{font-size:13px;opacity:.9;position:relative;z-index:1}
+.hero .emoji-row{font-size:32px;margin-top:8px;position:relative;z-index:1}
+/* Section title */
+.sect-t{font-size:14px;font-weight:800;color:var(--tx2);margin:18px 0 8px;display:flex;align-items:center;gap:6px}
+.sect-t .ic{font-size:18px}
+/* Vocab cards */
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.vc{background:var(--card);border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;border:3px solid transparent;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.vc:active{transform:scale(.93)}
+.vc.playing{border-color:var(--pri);background:var(--pri-l);box-shadow:0 4px 14px rgba(79,195,247,.3)}
+.vc .vc-em{font-size:40px;line-height:1;margin-bottom:6px}
+.vc .vc-en{font-size:16px;font-weight:800;color:var(--pri-d)}
+.vc .vc-cn{font-size:12px;color:var(--tx2);margin-top:2px}
+.vc .vc-spk{font-size:11px;color:var(--pri);margin-top:4px;opacity:.6}
+/* Sentence cards */
+.sent-list{display:flex;flex-direction:column;gap:8px}
+.sc{background:var(--card);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:transform .15s}
+.sc:active{transform:scale(.98)}
+.sc.playing{box-shadow:0 4px 14px rgba(79,195,247,.25);background:var(--pri-l)}
+.sc .sc-ic{font-size:22px;flex-shrink:0}
+.sc .sc-en{font-size:15px;font-weight:700;flex:1}
+.sc .sc-cn{font-size:12px;color:var(--tx2)}
+.sc .sc-spk{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#FFF;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+/* Game area */
+.game-box{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin-bottom:14px}
+.game-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.game-hd h3{font-size:16px;font-weight:800}
+.game-hd .score{font-size:14px;font-weight:700;color:var(--accent-d)}
+.game-q{font-size:18px;font-weight:700;text-align:center;margin-bottom:14px;color:var(--txt)}
+.game-q .big-em{font-size:56px;display:block;margin-bottom:6px}
+.game-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gopt{padding:16px 10px;border-radius:14px;border:3px solid #E0E0E0;background:#FFF;font-size:16px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;min-height:64px;display:flex;align-items:center;justify-content:center}
+.gopt:active{transform:scale(.93)}
+.gopt.right{background:linear-gradient(135deg,#69C98C,#4CAF50);color:#FFF;border-color:transparent;animation:pop .3s ease}
+.gopt.wrong{background:linear-gradient(135deg,#EF5350,#E53935);color:#FFF;border-color:transparent;animation:shake .3s ease}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.game-fb{text-align:center;font-size:14px;font-weight:700;margin-top:10px;min-height:20px}
+.game-fb.good{color:var(--good)}
+.game-fb.bad{color:var(--bad)}
+.game-next{margin-top:10px;text-align:center}
+.game-next .btn{display:inline-block;padding:10px 28px;border-radius:14px;background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#FFF;font-size:14px;font-weight:700;cursor:pointer;border:none}
+.game-next .btn:active{transform:scale(.95)}
+/* Listen game specific */
+.lg-play{margin:0 auto 16px;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#FFF;display:flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer;box-shadow:0 6px 20px rgba(2,136,209,.3);transition:transform .15s}
+.lg-play:active{transform:scale(.9)}
+.lg-play.playing{animation:pulse-blue 1s ease-in-out infinite}
+@keyframes pulse-blue{0%,100%{box-shadow:0 6px 20px rgba(2,136,209,.3)}50%{box-shadow:0 6px 30px rgba(2,136,209,.6)}}
+/* Progress */
+.prog-box{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin-bottom:14px}
+.prog-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.prog-row .pl{font-size:13px;font-weight:700;color:var(--tx2)}
+.prog-row .pv{font-size:13px;font-weight:800;color:var(--pri-d)}
+.prog-bar{height:10px;background:#E0E0E0;border-radius:5px;overflow:hidden}
+.prog-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--pri-d));border-radius:5px;transition:width .4s}
+/* 3D spiral toggle */
+.spiral-toggle{text-align:center;margin:10px 0}
+.spiral-toggle .btn{display:inline-block;padding:8px 20px;border-radius:12px;background:#FFF;border:2px solid var(--pri);color:var(--pri-d);font-size:13px;font-weight:700;cursor:pointer}
+.spiral-toggle .btn:active{transform:scale(.95)}
+#spiralBox{display:none;margin-bottom:14px;border-radius:var(--r);overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.1)}
+#spiralBox.show{display:block}
+#spiralFrame{width:100%;height:420px;border:none}
+/* Nav links */
+.nav-links{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.nav-links a{text-align:center;padding:10px 6px;border-radius:12px;background:var(--card);font-size:12px;font-weight:700;text-decoration:none;color:var(--pri-d);box-shadow:0 2px 6px rgba(0,0,0,.05);transition:transform .15s}
+.nav-links a:active{transform:scale(.95)}
+/* Responsive */
+@media(max-width:700px){.vocab-grid{grid-template-columns:repeat(2,1fr)}.game-opts{grid-template-columns:repeat(2,1fr)}#app{max-width:100%}.hdr h1{font-size:15px}.nav-links{grid-template-columns:1fr}}
+@media(min-width:701px){.vocab-grid{grid-template-columns:repeat(4,1fr)}.game-opts{grid-template-columns:repeat(4,1fr)}}
+@media(orientation:landscape) and (max-height:560px){.hero{padding:14px 18px}.hero h2{font-size:17px}.hero .emoji-row{font-size:24px}.vc .vc-em{font-size:32px}.vc .vc-en{font-size:14px}#spiralFrame{height:300px}.hdr{padding:8px 14px}.hdr h1{font-size:15px}.main{padding:10px 14px;padding-bottom:40px}}
 </style>
 </head>
 <body>
-<div id="nav">
-  <a href="https://shaka19190918.github.io/" target="_self">← 全部站点</a>
-  <a href="../" target="_self">← 数学 3D</a>
-  <a href="https://shaka19190918.github.io/youxiao-xianjie/" target="_blank" rel="noopener">幼小衔接 →</a>
+<div id="app">
+<div class="hdr">
+<a href="https://shaka19190918.github.io/" class="back" aria-label="返回">←</a>
+<h1>外研社英语 · 一年级互动学堂</h1>
+<span class="stars" id="starCount">★ 0</span>
 </div>
-<div id="stars"></div>
-<div id="stage"><div id="scene"><div id="spin"></div><div id="core"></div><div id="base"></div></div></div>
-
-<div id="hud">
-  <h1>外研社版（一年级起点）· 小学英语 3D 螺旋课节</h1>
-  <div class="sub">主编：陈琳 &nbsp;|&nbsp; 一年级 上 / 下册 &nbsp;|&nbsp; 共 <b id="cnt">0</b> 节官方精品课 &nbsp;|&nbsp; 点击<b>课节星球</b>直达国家平台对应课时讲解</div>
-  <div id="hint">✋ 单指拖动旋转 · 双击/双点复位 · 点击课节星球直达国家平台</div>
+<div class="main">
+<div class="nav-links">
+<a href="https://shaka19190918.github.io/zzxiaoxue/">← 数学3D星球</a>
+<a href="https://shaka19190918.github.io/youxiao-xianjie/">幼小衔接快乐营 →</a>
+<a href="https://basic.smartedu.cn/syncClassroom/prepare?defaultTag=e7bbb2de-0590-11ed-9c79-92fc3b3249d5%2F6a7495dc-0772-11ed-ac74-092ab92074e6%2F44bedc1e-54e6-11ed-9c34-850ba61fa9f4%2Fe7bbd296-0590-11ed-9c79-92fc3b3249d5%2Fff8080814371757b014390f883db0453%2F5136342961" target="_blank" rel="noopener">国家平台教材 ↗</a>
 </div>
 
-<div id="tooltip"></div>
-<aside id="legend"><h3>📚 课时导航（点击模块展开）</h3><div id="legendBody"></div></aside>
-<div id="src">
-  📖 教材来源：<a href="https://basic.smartedu.cn/syncClassroom/prepare?defaultTag=e7bbb2de-0590-11ed-9c79-92fc3b3249d5%2F6a7495dc-0772-11ed-ac74-092ab92074e6%2F44bedc1e-54e6-11ed-9c34-850ba61fa9f4%2Fe7bbd296-0590-11ed-9c79-92fc3b3249d5%2Fff8080814371757b014390f883db0453%2F5136342961" target="_blank" rel="noopener">国家中小学智慧教育平台 · 小学/英语/外研社版（一年级起点）</a><br>
-  ✅ 每节均链接到平台上对应课时的官方课程包（含教学视频），已逐一验证可打开。
+<div class="mod-bar" id="modBar"></div>
+
+<div class="hero" id="heroBox">
+<h2 id="heroTitle">欢迎来到英语互动学堂！</h2>
+<p id="heroDesc">点击单词卡片听发音，玩互动游戏赢星星，每个模块都有好玩的内容！</p>
+<div class="emoji-row">🎨🔊🎮⭐</div>
+</div>
+
+<div class="sect-t"><span class="ic">📖</span> 单词卡片（点击听发音）</div>
+<div class="vocab-grid" id="vocabGrid"></div>
+
+<div class="sect-t"><span class="ic">💬</span> 核心句型（点击听读）</div>
+<div class="sent-list" id="sentList"></div>
+
+<div class="sect-t"><span class="ic">🎮</span> 听音选词游戏</div>
+<div class="game-box" id="listenGame">
+<div class="game-hd"><h3>👀 看图选英语单词</h3><span class="score" id="lgScore">得分: 0</span></div>
+<div class="game-q" id="lgQ"><span class="big-em" id="lgEm">🐱</span>这是哪个单词？</div>
+<div class="game-opts" id="lgOpts"></div>
+<div class="game-fb" id="lgFb"></div>
+<div class="game-next" id="lgNext" style="display:none"><button class="btn" id="lgNextBtn">下一题 →</button></div>
+</div>
+
+<div class="sect-t"><span class="ic">🎧</span> 听音选图游戏</div>
+<div class="game-box" id="pickGame">
+<div class="game-hd"><h3>🎧 听发音选图片</h3><span class="score" id="pgScore">得分: 0</span></div>
+<div class="lg-play" id="pgPlay">🔊</div>
+<div class="game-q" id="pgQ">点击播放按钮听单词</div>
+<div class="game-opts" id="pgOpts"></div>
+<div class="game-fb" id="pgFb"></div>
+<div class="game-next" id="pgNext" style="display:none"><button class="btn" id="pgNextBtn">下一题 →</button></div>
+</div>
+
+<div class="sect-t"><span class="ic">📊</span> 学习进度</div>
+<div class="prog-box">
+<div class="prog-row"><span class="pl">单词学习</span><span class="pv" id="pvVocab">0 / 0</span></div>
+<div class="prog-bar"><span id="pbVocab" style="width:0%"></span></div>
+<div class="prog-row" style="margin-top:10px"><span class="pl">游戏得分</span><span class="pv" id="pvGame">0 分</span></div>
+<div class="prog-bar"><span id="pbGame" style="width:0%"></span></div>
+<div class="prog-row" style="margin-top:10px"><span class="pl">已学模块</span><span class="pv" id="pvMod">0 / 12</span></div>
+<div class="prog-bar"><span id="pbMod" style="width:0%"></span></div>
+</div>
+
+<div class="spiral-toggle">
+<button class="btn" id="spiralBtn">🌀 展开原 3D 螺旋课节图谱</button>
+</div>
+<div id="spiralBox"><iframe id="spiralFrame" src="about:blank"></iframe></div>
+</div>
 </div>
 
 <script>
-var KNOWLEDGE = [{"vol":"B","module":"Module 1","moduleNum":1,"title":"Unit 2 She's a nurse.","id":"f870af5f-3f8a-3c66-9681-aa2e8ffedad9","resId":"8aee80b0-69b4-08e6-0169-b4ed17d30138","resType":"prepare_lesson","teacher":"孙平","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80b0-69b4-08e6-0169-b4ed17d30138&chapterId=f870af5f-3f8a-3c66-9681-aa2e8ffedad9&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#ec3c3c","ml":"#f69e9e","md":"#892323"},{"vol":"B","module":"Module 2","moduleNum":2,"title":"Unit 1 Where's the bird?","id":"ca990a10-5463-37f9-b361-3c624d108f05","resId":"8aee80a3-63a6-5b15-0163-a923c75506df","resType":"prepare_lesson","teacher":"马晓丽","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80a3-63a6-5b15-0163-a923c75506df&chapterId=ca990a10-5463-37f9-b361-3c624d108f05&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#eca03c","ml":"#f6d09e","md":"#895d23"},{"vol":"B","module":"Module 2","moduleNum":2,"title":"Unit 2 The toy car is under the bed.","id":"b4f90f95-ed53-35b4-954b-dc1335b50941","resId":"ff808081-5c38-d2d7-015c-3999c1770c37","resType":"prepare_lesson","teacher":"宋玮","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5c38-d2d7-015c-3999c1770c37&chapterId=b4f90f95-ed53-35b4-954b-dc1335b50941&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#eca03c","ml":"#f6d09e","md":"#895d23"},{"vol":"A","module":"Module 3","moduleNum":3,"title":"Unit 1 Sit down!","id":"316c0483-c742-34be-a40f-2f508379017a","resId":"ff808081-5759-763e-0157-60bcea9359db","resType":"prepare_lesson","teacher":"邹烨","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5759-763e-0157-60bcea9359db&chapterId=316c0483-c742-34be-a40f-2f508379017a&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#d4ec3c","ml":"#eaf69e","md":"#7b8923"},{"vol":"B","module":"Module 3","moduleNum":3,"title":"Unit 2 How many green birds?","id":"a21d7e3a-70b3-3a68-a9a6-e45807a3473c","resId":"8aee80a3-6396-9163-0163-a1fd856a13a4","resType":"prepare_lesson","teacher":"何鸣","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80a3-6396-9163-0163-a1fd856a13a4&chapterId=a21d7e3a-70b3-3a68-a9a6-e45807a3473c&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#d4ec3c","ml":"#eaf69e","md":"#7b8923"},{"vol":"B","module":"Module 3","moduleNum":3,"title":"Unit 1 Where's the orange cat?","id":"2f0379b8-57bc-3986-a33d-227ec517f5f3","resId":"ff808081-5ce8-a1f4-015c-e8c42f4d0236","resType":"prepare_lesson","teacher":"严惠英","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5ce8-a1f4-015c-e8c42f4d0236&chapterId=2f0379b8-57bc-3986-a33d-227ec517f5f3&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#d4ec3c","ml":"#eaf69e","md":"#7b8923"},{"vol":"A","module":"Module 4","moduleNum":4,"title":"Unit 1 It's red.","id":"1ec91103-6d98-353f-a2b1-ea16b74bb857","resId":"ff808081-5d1a-66f6-015d-29d21a7c125f","resType":"prepare_lesson","teacher":"朱虹","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5d1a-66f6-015d-29d21a7c125f&chapterId=1ec91103-6d98-353f-a2b1-ea16b74bb857&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"A","module":"Module 4","moduleNum":4,"title":"Unit 2 It's a red dog.","id":"c81cb42a-7919-3789-ab6e-e3512eec86f3","resId":"8aee800b-6a65-c45f-016a-672ac0160c7d","resType":"prepare_lesson","teacher":"刘鑫","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee800b-6a65-c45f-016a-672ac0160c7d&chapterId=c81cb42a-7919-3789-ab6e-e3512eec86f3&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"B","module":"Module 4","moduleNum":4,"title":"Unit 2 These are your eyes.","id":"68493b49-0ee1-3f37-8a5a-03f04319735d","resId":"8aee80b7-62cd-3353-0162-d13e299b119d","resType":"prepare_lesson","teacher":"何永慧","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80b7-62cd-3353-0162-d13e299b119d&chapterId=68493b49-0ee1-3f37-8a5a-03f04319735d&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"B","module":"Module 4","moduleNum":4,"title":"Unit 1 This is my head.","id":"78d6d43c-9402-3bee-bd5e-8c7267c7690f","resId":"8ae7e4a8-5d5e-9264-015d-60206e6201cf","resType":"prepare_lesson","teacher":"宋耘","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8ae7e4a8-5d5e-9264-015d-60206e6201cf&chapterId=78d6d43c-9402-3bee-bd5e-8c7267c7690f&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#71ec3c","ml":"#b8f69e","md":"#428923"},{"vol":"B","module":"Module 5","moduleNum":5,"title":"Unit 2 It's thin.","id":"a0c97611-082e-33cc-a044-fa70b8eef550","resId":"ff808081-5ca5-f171-015c-afec808b480e","resType":"prepare_lesson","teacher":"万佳宁","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5ca5-f171-015c-afec808b480e&chapterId=a0c97611-082e-33cc-a044-fa70b8eef550&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3cec6b","ml":"#9ef6b5","md":"#23893e"},{"vol":"B","module":"Module 5","moduleNum":5,"title":"Unit 1 They're cows.","id":"098ca48c-4edf-38a4-9c22-f19ba46b282a","resId":"8aee80a9-63a9-fe08-0163-b0cd23413692","resType":"prepare_lesson","teacher":"郑晓娟","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80a9-63a9-fe08-0163-b0cd23413692&chapterId=098ca48c-4edf-38a4-9c22-f19ba46b282a&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3cec6b","ml":"#9ef6b5","md":"#23893e"},{"vol":"A","module":"Module 6","moduleNum":6,"title":"Unit 1 What's this?","id":"03dd2c14-479f-37cb-8740-06ca2f2b1679","resId":"8aee80f9-6a65-c3f8-016a-666ac0ff0090","resType":"prepare_lesson","teacher":"卢敏仪","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80f9-6a65-c3f8-016a-666ac0ff0090&chapterId=03dd2c14-479f-37cb-8740-06ca2f2b1679&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"B","module":"Module 6","moduleNum":6,"title":"Unit 1 That snakes are short.","id":"c5e2f4bb-2873-35cc-b84e-98115d96d13e","resId":"8aee808a-6a42-5904-016a-44b4ce210e29","resType":"prepare_lesson","teacher":"徐露萍","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee808a-6a42-5904-016a-44b4ce210e29&chapterId=c5e2f4bb-2873-35cc-b84e-98115d96d13e&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"B","module":"Module 6","moduleNum":6,"title":"Unit 2 They are little and cute.","id":"f4f519d7-7a8d-309c-8627-20f5458b4707","resId":"ff808081-5ce8-d35e-015c-ec68c27c18ef","resType":"prepare_lesson","teacher":"李媛","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5ce8-d35e-015c-ec68c27c18ef&chapterId=f4f519d7-7a8d-309c-8627-20f5458b4707&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3cecce","ml":"#9ef6e7","md":"#238977"},{"vol":"A","module":"Module 7","moduleNum":7,"title":"Unit 1 Is it a dog?","id":"5f58b62d-1570-3e00-a1c4-5f5ab320ad08","resId":"8aee80bf-6a23-88cd-016a-23ed67750357","resType":"prepare_lesson","teacher":"陈希","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80bf-6a23-88cd-016a-23ed67750357&chapterId=5f58b62d-1570-3e00-a1c4-5f5ab320ad08&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#3ca5ec","ml":"#9ed2f6","md":"#236089"},{"vol":"B","module":"Module 7","moduleNum":7,"title":"Unit 1 There is a cat in the tree.","id":"e58eaeb2-6457-39e5-8ebd-eaf11ddd48d2","resId":"8aee8093-6a42-5929-016a-4381137e0e80","resType":"prepare_lesson","teacher":"卜春吉","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee8093-6a42-5929-016a-4381137e0e80&chapterId=e58eaeb2-6457-39e5-8ebd-eaf11ddd48d2&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3ca5ec","ml":"#9ed2f6","md":"#236089"},{"vol":"B","module":"Module 7","moduleNum":7,"title":"Unit 2 There are three brown monkeys.","id":"515fe8a2-ca81-31ae-a753-1459a1cda2b3","resId":"ff808081-55fd-ad9f-0156-0070aee20160","resType":"prepare_lesson","teacher":"杨颖","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-55fd-ad9f-0156-0070aee20160&chapterId=515fe8a2-ca81-31ae-a753-1459a1cda2b3&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3ca5ec","ml":"#9ed2f6","md":"#236089"},{"vol":"B","module":"Module 8","moduleNum":8,"title":"Unit 1 There's a pair of shorts under that duck.","id":"ad7b4251-6767-3ec5-b764-329f1ff317a2","resId":"8aee809d-6a56-4dc4-016a-58112ed5098f","resType":"prepare_lesson","teacher":"李晓婵","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee809d-6a56-4dc4-016a-58112ed5098f&chapterId=ad7b4251-6767-3ec5-b764-329f1ff317a2&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#3c42ec","ml":"#9ea1f6","md":"#232689"},{"vol":"A","module":"Module 9","moduleNum":9,"title":"Unit 2 Happy birthday!","id":"e4a59458-107b-3fc3-b99b-9811315bf782","resId":"8ae68bfb-5df3-3edd-015d-f42804e90026","resType":"prepare_lesson","teacher":"卢振华","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8ae68bfb-5df3-3edd-015d-f42804e90026&chapterId=e4a59458-107b-3fc3-b99b-9811315bf782&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"A","module":"Module 9","moduleNum":9,"title":"Unit 1 How old are you?","id":"f77069a7-a7ad-3e25-bb17-c6604fdf9de7","resId":"8ae68b84-4a61-aae8-014a-6c4dcddc3dc4","resType":"prepare_lesson","teacher":"陈宁宁","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8ae68b84-4a61-aae8-014a-6c4dcddc3dc4&chapterId=f77069a7-a7ad-3e25-bb17-c6604fdf9de7&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"B","module":"Module 9","moduleNum":9,"title":"Unit 2 What's your favourite sport?","id":"dc0591b8-137a-31fe-9911-d0509ec2e91d","resId":"ff808081-5cb0-4d28-015c-c40b394767e4","resType":"prepare_lesson","teacher":"朱乾坤","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-5cb0-4d28-015c-c40b394767e4&chapterId=dc0591b8-137a-31fe-9911-d0509ec2e91d&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"B","module":"Module 9","moduleNum":9,"title":"Unit 1 I like football.","id":"ef27e4dd-659b-39ac-b7ea-6400b7e71882","resId":"ff808081-574b-a254-0157-4c5afe191298","resType":"prepare_lesson","teacher":"任春","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-574b-a254-0157-4c5afe191298&chapterId=ef27e4dd-659b-39ac-b7ea-6400b7e71882&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#9a3cec","ml":"#cd9ef6","md":"#592389"},{"vol":"A","module":"Module 10","moduleNum":10,"title":"Unit 1 That is my father.","id":"93b3b491-4d6f-3d36-b49b-e4bc92354c36","resId":"ff808081-4c9e-81ff-014c-a0edc8c41484","resType":"prepare_lesson","teacher":"李嘉玲","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-4c9e-81ff-014c-a0edc8c41484&chapterId=93b3b491-4d6f-3d36-b49b-e4bc92354c36&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#ec3cda","ml":"#f69eed","md":"#89237e"},{"vol":"B","module":"Module 10","moduleNum":10,"title":"Unit 1 Let's play football.","id":"3b71d0ec-8420-3c53-8d5e-52f53e0fffd9","resId":"8aee809c-6a1e-5f0c-016a-1f72793903a9","resType":"prepare_lesson","teacher":"吴蕾","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee809c-6a1e-5f0c-016a-1f72793903a9&chapterId=3b71d0ec-8420-3c53-8d5e-52f53e0fffd9&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#ec3cda","ml":"#f69eed","md":"#89237e"},{"vol":"A","module":"Review Module","moduleNum":11,"title":"Review Module","id":"889dee65-cd97-39a8-8d43-c3587fdad537","resId":"8aee80c9-6a60-9d5e-016a-62bbf2e10bdf","resType":"prepare_lesson","teacher":"陈青华","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80c9-6a60-9d5e-016a-62bbf2e10bdf&chapterId=889dee65-cd97-39a8-8d43-c3587fdad537&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#9aa7c7","ml":"#cdd3e3","md":"#596173"},{"vol":"B","module":"Review Module","moduleNum":11,"title":"Unit 2","id":"9c503432-ed17-3e93-87ac-1c76701039f9","resId":"8aee80c4-6a24-5956-016a-24824db400f4","resType":"prepare_lesson","teacher":"张警文","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80c4-6a24-5956-016a-24824db400f4&chapterId=9c503432-ed17-3e93-87ac-1c76701039f9&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#9aa7c7","ml":"#cdd3e3","md":"#596173"},{"vol":"B","module":"Review Module","moduleNum":11,"title":"Unit 1","id":"0885a1ea-95c9-31ff-8781-cd89f28fa914","resId":"8aee80ce-63c9-a084-0163-cd9decf70e04","resType":"prepare_lesson","teacher":"王琳","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80ce-63c9-a084-0163-cd9decf70e04&chapterId=0885a1ea-95c9-31ff-8781-cd89f28fa914&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#9aa7c7","ml":"#cdd3e3","md":"#596173"},{"vol":"A","module":"Project","moduleNum":13,"title":"Numbers","id":"128722c5-d099-364f-a3c0-2785e7c43e24","resId":"ff808081-57a3-01c4-0157-a4cb61d82228","resType":"prepare_lesson","teacher":"李丽","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=ff808081-57a3-01c4-0157-a4cb61d82228&chapterId=128722c5-d099-364f-a3c0-2785e7c43e24&teachingmaterialId=af05bc77-0902-9842-f1b5-37cdfad7c5c8&fromPrepare=1&classHourId=lesson_1","mc":"#2ecc71","ml":"#97e6b8","md":"#1b7642"},{"vol":"B","module":"Project","moduleNum":13,"title":"Things We Like","id":"74597c41-10ea-3899-a1be-501346a720a5","resId":"8aee80bf-6a1e-61f9-016a-1f42e51305d5","resType":"prepare_lesson","teacher":"李若西","url":"https://basic.smartedu.cn/syncClassroom/prepare/detail?lessonId=8aee80bf-6a1e-61f9-016a-1f42e51305d5&chapterId=74597c41-10ea-3899-a1be-501346a720a5&teachingmaterialId=c8ae9406-6280-bd3e-0444-3227ae2dab7a&fromPrepare=1&classHourId=lesson_1","mc":"#2ecc71","ml":"#97e6b8","md":"#1b7642"}];
+/* === 外研社一年级英语 · 词汇与句型数据 === */
+var MODULES=[
+{name:"Module 1",title:"She's a nurse.",vol:"B",emoji:"👩‍⚕️",vocab:[
+{em:"👩‍⚕️",en:"nurse",cn:"护士"},{em:"👨‍🏫",en:"teacher",cn:"老师"},
+{em:"👨‍⚕️",en:"doctor",cn:"医生"},{em:"👩‍🍳",en:"driver",cn:"司机"},
+{em:"👮",en:"policeman",cn:"警察"}],
+sents:[
+{en:"She's a nurse.",cn:"她是一名护士。",ic:"👩‍⚕️"},
+{en:"He's a teacher.",cn:"他是一名老师。",ic:"👨‍🏫"},
+{en:"What's she?",cn:"她是做什么的？",ic:"❓"},
+{en:"Is she a doctor?",cn:"她是医生吗？",ic:"👨‍⚕️"}
+]},
+{name:"Module 2",title:"Where's the bird?",vol:"B",emoji:"🐦",vocab:[
+{em:"🐦",en:"bird",cn:"鸟"},{em:"🚗",en:"toy car",cn:"玩具车"},
+{em:"🛏️",en:"bed",cn:"床"},{em:"📦",en:"box",cn:"盒子"},
+{em:"🌳",en:"tree",cn:"树"}],
+sents:[
+{en:"Where's the bird?",cn:"鸟在哪里？",ic:"🐦"},
+{en:"It's on the bed.",cn:"它在床上。",ic:"🛏️"},
+{en:"It's under the bed.",cn:"它在床下面。",ic:"⬇️"},
+{en:"The toy car is under the bed.",cn:"玩具车在床下面。",ic:"🚗"}
+]},
+{name:"Module 3",title:"Sit down! / How many green birds?",vol:"AB",emoji:"🪑",vocab:[
+{em:"🪑",en:"sit down",cn:"坐下"},{em:"🧍",en:"stand up",cn:"站起来"},
+{em:"🔴",en:"red",cn:"红色"},{em:"🟢",en:"green",cn:"绿色"},
+{em:"🟠",en:"orange",cn:"橙色"},{em:"🐱",en:"cat",cn:"猫"},
+{em:"🐦",en:"bird",cn:"鸟"}],
+sents:[
+{en:"Sit down, please.",cn:"请坐下。",ic:"🪑"},
+{en:"Stand up, please.",cn:"请站起来。",ic:"🧍"},
+{en:"How many green birds?",cn:"有多少只绿色的鸟？",ic:"🐦"},
+{en:"Where's the orange cat?",cn:"橙色的猫在哪里？",ic:"🐱"}
+]},
+{name:"Module 4",title:"It's red. / This is my head.",vol:"AB",emoji:"🎨",vocab:[
+{em:"🔴",en:"red",cn:"红色"},{em:"🔵",en:"blue",cn:"蓝色"},
+{em:"🟢",en:"green",cn:"绿色"},{em:"🟡",en:"yellow",cn:"黄色"},
+{em:"🦮",en:"dog",cn:"狗"},{em:"👂",en:"ear",cn:"耳朵"},
+{em:"👁️",en:"eye",cn:"眼睛"},{em:"👃",en:"nose",cn:"鼻子"},
+{em:"👄",en:"mouth",cn:"嘴"}],
+sents:[
+{en:"It's red.",cn:"它是红色的。",ic:"🔴"},
+{en:"It's a red dog.",cn:"它是一只红色的狗。",ic:"🦮"},
+{en:"This is my head.",cn:"这是我的头。",ic:"😀"},
+{en:"These are your eyes.",cn:"这些是你的眼睛。",ic:"👁️"}
+]},
+{name:"Module 5",title:"It's thin. / They're cows.",vol:"B",emoji:"🐄",vocab:[
+{em:"🐄",en:"cow",cn:"奶牛"},{em:"🐷",en:"pig",cn:"猪"},
+{em:"🐔",en:"chicken",cn:"鸡"},{em:"🦆",en:"duck",cn:"鸭子"},
+{em:"🐘",en:"elephant",cn:"大象"},{em:"🐍",en:"snake",cn:"蛇"}],
+sents:[
+{en:"It's thin.",cn:"它很瘦。",ic:"🐍"},
+{en:"They're cows.",cn:"它们是奶牛。",ic:"🐄"},
+{en:"They're big.",cn:"它们很大。",ic:"🐘"},
+{en:"It's little and cute.",cn:"它又小又可爱。",ic:"🐔"}
+]},
+{name:"Module 6",title:"What's this? / Snakes are short.",vol:"AB",emoji:"❓",vocab:[
+{em:"🐍",en:"snake",cn:"蛇"},{em:"🐘",en:"elephant",cn:"大象"},
+{em:"🐯",en:"tiger",cn:"老虎"},{em:"🐵",en:"monkey",cn:"猴子"},
+{em:"🦁",en:"lion",cn:"狮子"}],
+sents:[
+{en:"What's this?",cn:"这是什么？",ic:"❓"},
+{en:"It's a tiger.",cn:"它是一只老虎。",ic:"🐯"},
+{en:"Snakes are short.",cn:"蛇很短。",ic:"🐍"},
+{en:"They are little and cute.",cn:"它们又小又可爱。",ic:"🐵"}
+]},
+{name:"Module 7",title:"Is it a dog? / Monkeys in the tree.",vol:"AB",emoji:"🐶",vocab:[
+{em:"🐶",en:"dog",cn:"狗"},{em:"🐱",en:"cat",cn:"猫"},
+{em:"🐵",en:"monkey",cn:"猴子"},{em:"🐻",en:"bear",cn:"熊"},
+{em:"🌳",en:"tree",cn:"树"}],
+sents:[
+{en:"Is it a dog?",cn:"它是一只狗吗？",ic:"🐶"},
+{en:"There is a cat in the tree.",cn:"树里有一只猫。",ic:"🌳"},
+{en:"There are three brown monkeys.",cn:"有三只棕色的猴子。",ic:"🐵"},
+{en:"Yes, it is.",cn:"是的，它是。",ic:"✅"}
+]},
+{name:"Module 8",title:"A pair of shorts under that duck.",vol:"B",emoji:"🩳",vocab:[
+{em:"🩳",en:"shorts",cn:"短裤"},{em:"👕",en:"shirt",cn:"衬衫"},
+{em:"👟",en:"shoes",cn:"鞋子"},{em:"🎩",en:"hat",cn:"帽子"},
+{em:"🧦",en:"socks",cn:"袜子"}],
+sents:[
+{en:"There's a pair of shorts under that duck.",cn:"那只鸭子下面有一条短裤。",ic:"🩳"},
+{en:"Put on your shoes.",cn:"穿上你的鞋子。",ic:"👟"},
+{en:"Where's my hat?",cn:"我的帽子在哪里？",ic:"🎩"},
+{en:"Take off your shirt.",cn:"脱掉你的衬衫。",ic:"👕"}
+]},
+{name:"Module 9",title:"How old are you? / I like football.",vol:"AB",emoji:"⚽",vocab:[
+{em:"🎂",en:"birthday",cn:"生日"},{em:"⚽",en:"football",cn:"足球"},
+{em:"🏀",en:"basketball",cn:"篮球"},{em:"🏊",en:"swimming",cn:"游泳"},
+{em:"🏃",en:"running",cn:"跑步"}],
+sents:[
+{en:"How old are you?",cn:"你几岁了？",ic:"🎂"},
+{en:"Happy birthday!",cn:"生日快乐！",ic:"🎉"},
+{en:"I like football.",cn:"我喜欢足球。",ic:"⚽"},
+{en:"What's your favourite sport?",cn:"你最喜欢什么运动？",ic:"🏅"}
+]},
+{name:"Module 10",title:"That is my father. / Let's play football.",vol:"AB",emoji:"👨",vocab:[
+{em:"👨",en:"father",cn:"爸爸"},{em:"👩",en:"mother",cn:"妈妈"},
+{em:"👦",en:"brother",cn:"哥哥/弟弟"},{em:"👧",en:"sister",cn:"姐姐/妹妹"},
+{em:"👴",en:"grandpa",cn:"爷爷"},{em:"👵",en:"grandma",cn:"奶奶"}],
+sents:[
+{en:"That is my father.",cn:"那是我的爸爸。",ic:"👨"},
+{en:"This is my mother.",cn:"这是我的妈妈。",ic:"👩"},
+{en:"Let's play football.",cn:"我们一起踢足球吧。",ic:"⚽"},
+{en:"He's my brother.",cn:"他是我的兄弟。",ic:"👦"}
+]},
+{name:"Review",title:"Review Module",vol:"AB",emoji:"📚",vocab:[
+{em:"👨‍⚕️",en:"nurse",cn:"护士"},{em:"🐦",en:"bird",cn:"鸟"},
+{em:"🔴",en:"red",cn:"红色"},{em:"🐶",en:"dog",cn:"狗"},
+{em:"🐱",en:"cat",cn:"猫"},{em:"⚽",en:"football",cn:"足球"},
+{em:"👨",en:"father",cn:"爸爸"},{em:"👩",en:"mother",cn:"妈妈"}],
+sents:[
+{en:"She's a nurse.",cn:"她是一名护士。",ic:"👩‍⚕️"},
+{en:"Where's the bird?",cn:"鸟在哪里？",ic:"🐦"},
+{en:"It's red.",cn:"它是红色的。",ic:"🔴"},
+{en:"That is my father.",cn:"那是我的爸爸。",ic:"👨"}
+]},
+{name:"Project",title:"Numbers & Things We Like",vol:"AB",emoji:"🔢",vocab:[
+{em:"1️⃣",en:"one",cn:"一"},{em:"2️⃣",en:"two",cn:"二"},
+{em:"3️⃣",en:"three",cn:"三"},{em:"4️⃣",en:"four",cn:"四"},
+{em:"5️⃣",en:"five",cn:"五"},{em:"⚽",en:"football",cn:"足球"},
+{em:"🏀",en:"basketball",cn:"篮球"}],
+sents:[
+{en:"How old are you? I'm five.",cn:"你几岁了？我五岁了。",ic:"5️⃣"},
+{en:"I like football.",cn:"我喜欢足球。",ic:"⚽"},
+{en:"One, two, three!",cn:"一，二，三！",ic:"🔢"},
+{en:"Things we like.",cn:"我们喜欢的东西。",ic:"❤️"}
+]}
+];
 
-(function(){ var s=document.getElementById('stars'),h=''; for(var i=0;i<110;i++){ var sz=(Math.random()*2+1).toFixed(1); h+='<div style="position:absolute;left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*100).toFixed(2)+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:rgba(255,255,255,'+(Math.random()*.5+.3).toFixed(2)+');box-shadow:0 0 '+(sz*2)+'px rgba(180,210,255,.7);"></div>'; } s.innerHTML=h; })();
+/* === State === */
+var state={modIdx:0,learned:new Set(),lgScore:0,pgScore:0,lgQ:0,pgQ:0};
+try{var s=JSON.parse(localStorage.getItem('fltrp_v2')||'{}');if(s.modIdx!==undefined)state.modIdx=s.modIdx;if(s.learned)state.learned=new Set(s.learned);if(s.lgScore)state.lgScore=s.lgScore;if(s.pgScore)state.pgScore=s.pgScore;}catch(e){}
 
-var N=KNOWLEDGE.length;
-document.getElementById('cnt').textContent=N;
+function save(){localStorage.setItem('fltrp_v2',JSON.stringify({modIdx:state.modIdx,learned:[...state.learned],lgScore:state.lgScore,pgScore:state.pgScore}));}
 
-var spin=document.getElementById('spin');
-var nodeEls=[];
-var R=150, VSTEP=22, TURN=0.62;   /* 每节点绕轴角度(弧度) ≈ 35.5° */
-var yMax=(N-1)/2*VSTEP;
-var Rmax=Math.sqrt(R*R+yMax*yMax);
-
-/* 中心光柱高度 = 螺旋总高 + 留白 */
-document.getElementById('core').style.height=(yMax*2+70)+'px';
-
-KNOWLEDGE.forEach(function(k,i){
-  var t=i;                       /* 索引进螺旋 */
-  var ang=t*TURN;
-  var y=(i-(N-1)/2)*VSTEP;
-  var x=Math.cos(ang)*R;
-  var z=Math.sin(ang)*R;
-  var el=document.createElement('div');
-  el.className='node';
-  el.innerHTML='<div class="ball"></div><div class="label">'+k.title+'</div>';
-  el.style.setProperty('--mc',k.mc);
-  el.querySelector('.ball').style.background='radial-gradient(circle at 33% 30%, '+k.ml+', '+k.mc+' 60%, '+k.md+')';
-  el.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,'+z.toFixed(1)+'px)';
-  spin.appendChild(el);
-  nodeEls.push({el:el,k:k,x:x,y:y,z:z,lab:el.querySelector('.label'),hover:false});
-});
-
-/* tooltip */
-var tip=document.getElementById('tooltip'), cur=null;
-nodeEls.forEach(function(n){
-  n.el.addEventListener('mouseenter',function(e){cur=n;show(e,n);tip.style.opacity=1;});
-  n.el.addEventListener('mousemove',function(e){if(cur===n)show(e,n);});
-  n.el.addEventListener('mouseleave',function(){tip.style.opacity=0;cur=null;});
-});
-function show(e,n){
-  tip.innerHTML='<div class="t-name">'+n.k.title+'</div><div class="t-mod">'+(n.k.vol==='A'?'一年级上册':'一年级下册')+' · '+n.k.module+'</div><div class="t-go">➜ 点击打开国家平台 · '+n.k.module+' 课时讲解</div>';
-  var xx=e.clientX+16, yy=e.clientY-8;
-  if(xx+tip.offsetWidth>window.innerWidth-8) xx=e.clientX-tip.offsetWidth-16;
-  if(yy+tip.offsetHeight>window.innerHeight-8) yy=window.innerHeight-tip.offsetHeight-8;
-  tip.style.left=xx+'px'; tip.style.top=yy+'px';
+/* === TTS === */
+var synth=window.speechSynthesis||null;
+function speak(text,lang){
+  if(!synth)return;
+  try{synth.cancel()}catch(e){}
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang=lang||'en-US';
+  u.rate=0.8;
+  u.pitch=1.1;
+  synth.speak(u);
 }
-var dragMoved=false;
-nodeEls.forEach(function(n){ n.el.addEventListener('click',function(){ if(dragMoved){dragMoved=false;return;} window.open(n.k.url,'_blank'); }); });
 
-/* 旋转：慢速摆荡 + 拖拽 + billboard + 深度淡出 */
-var stage=document.getElementById('stage');
-var ry=-24, rx=-6, ryBase=-24, rxBase=-6, auto=true, dragging=false;
-var lx=0,ly=0,dx0=0,dy0=0, swingT=0, lastTs=0, idleTimer=null, lastTap=0;
-var SW_Y_AMP=16, SW_Y_T=42, SW_X_AMP=3, SW_X_T=28;
-var LAB_ON=0.55, LAB_FULL=0.70;
-var lastRy=1e9, lastRx=1e9;
+/* === Render === */
+function curMod(){return MODULES[state.modIdx];}
 
-function apply(){
-  if(Math.abs(ry-lastRy)<0.04 && Math.abs(rx-lastRx)<0.04) return;
-  lastRy=ry; lastRx=rx;
-  var t='rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg)';
-  spin.style.transform=t;
-  var bt='translateX(-50%) rotateY('+(-ry).toFixed(2)+'deg) rotateX('+(-rx).toFixed(2)+'deg)';
-  var crx=rx*Math.PI/180, cry=ry*Math.PI/180;
-  var cy=Math.cos(cry), sy=Math.sin(cry), cx=Math.cos(crx), sx=Math.sin(crx);
-  for(var i=0;i<nodeEls.length;i++){
-    var n=nodeEls[i];
-    var z1=-n.x*sy+n.z*cy;
-    var z2=n.y*sx+z1*cx;
-    var o=(z2+Rmax)/(2*Rmax); if(o<0)o=0; else if(o>1)o=1;
-    n.el.style.opacity=(0.18+0.82*Math.pow(o,1.5)).toFixed(3);
-    var lo=(o-LAB_ON)/(LAB_FULL-LAB_ON); if(lo<0)lo=0; else if(lo>1)lo=1;
-    if(n.hover) lo=1;
-    n.lab.style.opacity=lo.toFixed(3);
-    if(lo>0.001) n.lab.style.transform=bt;
-  }
-}
-function swing(now){
-  var dt=lastTs?Math.min(0.05,(now-lastTs)/1000):0; lastTs=now;
-  if(auto&&!dragging){ swingT+=dt; ry=ryBase+Math.sin(swingT*(2*Math.PI/SW_Y_T))*SW_Y_AMP; rx=rxBase+Math.sin(swingT*(2*Math.PI/SW_X_T))*SW_X_AMP; apply(); }
-  requestAnimationFrame(swing);
-}
-function beginDrag(x,y){ dragging=true; auto=false; clearTimeout(idleTimer); lx=x; ly=y; dx0=x; dy0=y; stage.classList.add('dragging'); }
-function moveDrag(x,y){ if(!dragging)return; if(Math.abs(x-dx0)+Math.abs(y-dy0)>5)dragMoved=true; ryBase+=(x-lx)*0.32; rxBase+=(y-ly)*0.22; if(rxBase>85)rxBase=85; else if(rxBase<-85)rxBase=-85; ry=ryBase; rx=rxBase; lx=x; ly=y; apply(); }
-function endDrag(){ if(!dragging)return; dragging=false; stage.classList.remove('dragging'); clearTimeout(idleTimer); idleTimer=setTimeout(function(){swingT=0;auto=true;},5000); }
-stage.addEventListener('mousedown',function(e){ dragMoved=false; if(e.target.closest('.node'))return; beginDrag(e.clientX,e.clientY); });
-window.addEventListener('mousemove',function(e){moveDrag(e.clientX,e.clientY);});
-window.addEventListener('mouseup',endDrag);
-stage.addEventListener('touchstart',function(e){ dragMoved=false; if(e.target.closest('.node'))return; var tt=e.touches[0]; beginDrag(tt.clientX,tt.clientY); },{passive:true});
-window.addEventListener('touchmove',function(e){ if(!dragging)return; var tt=e.touches[0]; moveDrag(tt.clientX,tt.clientY); e.preventDefault(); },{passive:false});
-window.addEventListener('touchend',function(e){ if(!dragMoved){ var now=Date.now(); if(now-lastTap<330){resetView();lastTap=0;} else lastTap=now; } endDrag(); },{passive:true});
-window.addEventListener('touchcancel',endDrag);
-function resetView(){ ryBase=-24; rxBase=-6; swingT=0; auto=true; clearTimeout(idleTimer); ry=ryBase; rx=rxBase; lastRy=1e9; apply(); }
-stage.addEventListener('dblclick',resetView);
-nodeEls.forEach(function(n){ n.el.addEventListener('mouseenter',function(){n.hover=true;lastRy=1e9;apply();}); n.el.addEventListener('mouseleave',function(){n.hover=false;lastRy=1e9;apply();}); });
-
-/* 自适应布局 */
-var sceneEl=document.getElementById('scene'), legendEl=document.getElementById('legend');
-function layout(){
-  var w=window.innerWidth, h=window.innerHeight;
-  var legendW=(getComputedStyle(legendEl).display==='none')?0:legendEl.offsetWidth;
-  var shift=-legendW/2;
-  var hudH=(h<700)?88:112;
-  var margin=16, labelHalfW=58, labelBelow=30;
-  var availHalfW=(w-legendW)/2 - margin - labelHalfW;
-  var availHalfH=(h-hudH)/2 - margin - labelBelow;
-  var sByW=availHalfW/(R+labelHalfW);
-  var sByH=availHalfH/(yMax+labelBelow+10);
-  var s=Math.min(sByW,sByH); if(s>1)s=1; if(s<0.3)s=0.3;
-  sceneEl.style.transform='translateX('+shift.toFixed(1)+'px) scale('+s.toFixed(3)+')';
-}
-layout(); apply(); requestAnimationFrame(swing);
-var rzT=null;
-function relayout(){ clearTimeout(rzT); rzT=setTimeout(function(){layout();lastRy=1e9;apply();},100); }
-window.addEventListener('resize',relayout);
-window.addEventListener('orientationchange',function(){clearTimeout(rzT);rzT=setTimeout(function(){layout();lastRy=1e9;apply();},300);});
-if(window.visualViewport) window.visualViewport.addEventListener('resize',relayout);
-
-/* 图例：册次 → Module → 课节 */
-(function(){
-  var body=document.getElementById('legendBody'), html='';
-  ['A','B'].forEach(function(vol){
-    html+='<div class="lg-vol">'+(vol==='A'?'一年级 · 上册':'一年级 · 下册')+'</div>';
-    var seen=[], map={};
-    KNOWLEDGE.forEach(function(k){ if(k.vol!==vol)return; if(!map[k.module]){map[k.module]=[];seen.push(k.module);} map[k.module].push(k); });
-    seen.forEach(function(mod,mi){
-      var lessons=map[mod];
-      html+='<div class="lg-mod" data-t="'+vol+mi+'"><span class="lg-dot" style="background:'+lessons[0].mc+'"></span>'+mod+' <span style="color:rgba(255,255,255,.45);font-size:11px">('+lessons.length+')</span><span class="lg-caret">▸</span></div>';
-      html+='<div class="lg-lessons" id="lg-'+vol+mi+'">';
-      lessons.forEach(function(k,li){ html+='<div class="lg-lesson" data-u="'+k.url+'">'+(li+1)+'. '+k.title+'</div>'; });
-      html+='</div>';
-    });
+function renderModBar(){
+  var bar=document.getElementById('modBar');
+  bar.innerHTML='';
+  MODULES.forEach(function(m,i){
+    var t=document.createElement('div');
+    t.className='mod-tab'+(i===state.modIdx?' on':'');
+    var learnedInMod=m.vocab.filter(function(v){return state.learned.has(v.en);}).length;
+    var total=m.vocab.length;
+    var star=learnedInMod>=total?' ★':'';
+    t.innerHTML=m.name+(star?'<span class="star">★</span>':'');
+    t.addEventListener('click',function(){state.modIdx=i;save();renderAll();});
+    bar.appendChild(t);
   });
-  body.innerHTML=html;
-  body.querySelectorAll('.lg-mod').forEach(function(el){ el.addEventListener('click',function(){ var box=document.getElementById('lg-'+el.dataset.t); var open=box.classList.toggle('open'); el.querySelector('.lg-caret').style.transform=open?'rotate(90deg)':''; }); });
-  body.querySelectorAll('.lg-lesson').forEach(function(el){ el.addEventListener('click',function(){window.open(el.dataset.u,'_blank');}); });
-})();
+}
+
+function renderHero(){
+  var m=curMod();
+  document.getElementById('heroTitle').textContent=m.name+'：'+m.title;
+  var volStr=m.vol==='A'?'一年级上册':(m.vol==='B'?'一年级下册':'上下册');
+  document.getElementById('heroDesc').textContent=volStr+' · '+m.vocab.length+' 个单词 · '+m.sents.length+' 个句型 · 点击卡片听发音';
+  document.querySelector('.hero .emoji-row').textContent=m.emoji+' '+m.vocab.slice(0,4).map(function(v){return v.em;}).join('');
+}
+
+function renderVocab(){
+  var m=curMod();
+  var grid=document.getElementById('vocabGrid');
+  grid.innerHTML='';
+  m.vocab.forEach(function(v){
+    var c=document.createElement('div');
+    c.className='vc';
+    var learned=state.learned.has(v.en);
+    c.innerHTML='<div class="vc-em">'+v.em+'</div><div class="vc-en">'+v.en+'</div><div class="vc-cn">'+v.cn+'</div><div class="vc-spk">🔊 点击播放</div>';
+    c.addEventListener('click',function(){
+      document.querySelectorAll('.vc.playing').forEach(function(el){el.classList.remove('playing');});
+      c.classList.add('playing');
+      speak(v.en);
+      state.learned.add(v.en);
+      save();
+      setTimeout(function(){c.classList.remove('playing');},1500);
+      renderProgress();
+      renderModBar();
+    });
+    grid.appendChild(c);
+  });
+}
+
+function renderSents(){
+  var m=curMod();
+  var list=document.getElementById('sentList');
+  list.innerHTML='';
+  m.sents.forEach(function(s){
+    var c=document.createElement('div');
+    c.className='sc';
+    c.innerHTML='<span class="sc-ic">'+s.ic+'</span><div><div class="sc-en">'+s.en+'</div><div class="sc-cn">'+s.cn+'</div></div><span class="sc-spk">🔊</span>';
+    c.addEventListener('click',function(){
+      document.querySelectorAll('.sc.playing').forEach(function(el){el.classList.remove('playing');});
+      c.classList.add('playing');
+      speak(s.en);
+      setTimeout(function(){c.classList.remove('playing');},2000);
+    });
+    list.appendChild(c);
+  });
+}
+
+/* === Game 1: See image, pick English word === */
+function lgNewQ(){
+  var m=curMod();
+  var pool=m.vocab.slice();
+  if(pool.length<2)return;
+  var correct=pool[Math.floor(Math.random()*pool.length)];
+  var wrongs=pool.filter(function(v){return v.en!==correct.en;}).sort(function(){return Math.random()-0.5;}).slice(0,3);
+  if(wrongs.length<3){
+    // fill from other modules
+    var extra=[];
+    MODULES.forEach(function(mod){if(mod===m)return;mod.vocab.forEach(function(v){if(pool.indexOf(v)<0)extra.push(v);});});
+    extra=extra.sort(function(){return Math.random()-0.5;});
+    while(wrongs.length<3&&extra.length>0)wrongs.push(extra.shift());
+  }
+  var opts=[correct].concat(wrongs).sort(function(){return Math.random()-0.5;});
+  document.getElementById('lgEm').textContent=correct.em;
+  document.getElementById('lgQ').innerHTML='<span class="big-em">'+correct.em+'</span>这是哪个单词？';
+  speak(correct.en);
+  var box=document.getElementById('lgOpts');
+  box.innerHTML='';
+  opts.forEach(function(o){
+    var b=document.createElement('div');
+    b.className='gopt';
+    b.textContent=o.en;
+    b.addEventListener('click',function(){
+      if(b.classList.contains('right')||b.classList.contains('wrong'))return;
+      if(o.en===correct.en){
+        b.classList.add('right');
+        state.lgScore++;save();
+        document.getElementById('lgFb').textContent='✅ Correct! '+correct.en+' = '+correct.cn;
+        document.getElementById('lgFb').className='game-fb good';
+        document.getElementById('lgScore').textContent='得分: '+state.lgScore;
+        document.getElementById('lgNext').style.display='block';
+      }else{
+        b.classList.add('wrong');
+        document.getElementById('lgFb').textContent='❌ 再试试！正确答案是 '+correct.en;
+        document.getElementById('lgFb').className='game-fb bad';
+        // Highlight correct
+        box.querySelectorAll('.gopt').forEach(function(g){if(g.textContent===correct.en)g.classList.add('right');});
+        document.getElementById('lgNext').style.display='block';
+      }
+      renderProgress();
+    });
+    box.appendChild(b);
+  });
+  document.getElementById('lgFb').textContent='';
+  document.getElementById('lgNext').style.display='none';
+}
+
+/* === Game 2: Listen, pick image === */
+function pgNewQ(){
+  var m=curMod();
+  var pool=m.vocab.slice();
+  if(pool.length<2)return;
+  var correct=pool[Math.floor(Math.random()*pool.length)];
+  var wrongs=pool.filter(function(v){return v.en!==correct.en;}).sort(function(){return Math.random()-0.5;}).slice(0,3);
+  if(wrongs.length<3){
+    var extra=[];
+    MODULES.forEach(function(mod){if(mod===m)return;mod.vocab.forEach(function(v){extra.push(v);});});
+    extra=extra.sort(function(){return Math.random()-0.5;});
+    while(wrongs.length<3&&extra.length>0)wrongs.push(extra.shift());
+  }
+  var opts=[correct].concat(wrongs).sort(function(){return Math.random()-0.5;});
+  document.getElementById('pgQ').textContent='听发音，选出对应的图片';
+  var box=document.getElementById('pgOpts');
+  box.innerHTML='';
+  opts.forEach(function(o){
+    var b=document.createElement('div');
+    b.className='gopt';
+    b.innerHTML='<span style="font-size:32px">'+o.em+'</span>';
+    b.addEventListener('click',function(){
+      if(b.classList.contains('right')||b.classList.contains('wrong'))return;
+      if(o.en===correct.en){
+        b.classList.add('right');
+        state.pgScore++;save();
+        document.getElementById('pgFb').textContent='✅ Correct! '+correct.en+' = '+correct.cn;
+        document.getElementById('pgFb').className='game-fb good';
+        document.getElementById('pgScore').textContent='得分: '+state.pgScore;
+        document.getElementById('pgNext').style.display='block';
+      }else{
+        b.classList.add('wrong');
+        document.getElementById('pgFb').textContent='❌ 再试试！正确答案是 '+correct.em;
+        document.getElementById('pgFb').className='game-fb bad';
+        box.querySelectorAll('.gopt').forEach(function(g){if(g.innerHTML.indexOf(correct.em)>=0)g.classList.add('right');});
+        document.getElementById('pgNext').style.display='block';
+      }
+      renderProgress();
+    });
+    box.appendChild(b);
+  });
+  document.getElementById('pgFb').textContent='';
+  document.getElementById('pgNext').style.display='none';
+}
+
+function renderProgress(){
+  var m=curMod();
+  var vocabLearned=m.vocab.filter(function(v){return state.learned.has(v.en);}).length;
+  var totalVocab=m.vocab.length;
+  document.getElementById('pvVocab').textContent=vocabLearned+' / '+totalVocab;
+  document.getElementById('pbVocab').style.width=(totalVocab>0?(vocabLearned/totalVocab*100):0)+'%';
+  var totalScore=state.lgScore+state.pgScore;
+  document.getElementById('pvGame').textContent=totalScore+' 分';
+  document.getElementById('pbGame').style.width=Math.min(totalScore*5,100)+'%';
+  var modsWithStars=MODULES.filter(function(mod){return mod.vocab.every(function(v){return state.learned.has(v.en);});}).length;
+  document.getElementById('pvMod').textContent=modsWithStars+' / '+MODULES.length;
+  document.getElementById('pbMod').style.width=(modsWithStars/MODULES.length*100)+'%';
+  document.getElementById('starCount').textContent='★ '+modsWithStars;
+}
+
+function renderAll(){
+  renderModBar();
+  renderHero();
+  renderVocab();
+  renderSents();
+  lgNewQ();
+  pgNewQ();
+  renderProgress();
+}
+
+/* === Init === */
+document.addEventListener('DOMContentLoaded',function(){
+  renderAll();
+  document.getElementById('lgNextBtn').addEventListener('click',lgNewQ);
+  document.getElementById('pgNextBtn').addEventListener('click',pgNewQ);
+  document.getElementById('pgPlay').addEventListener('click',function(){
+    var em=document.getElementById('lgEm').textContent;
+    // Find matching word
+    var m=curMod();
+    var found=m.vocab.find(function(v){return v.em===em;});
+    if(found)speak(found.en);
+  });
+  // Spiral toggle
+  document.getElementById('spiralBtn').addEventListener('click',function(){
+    var box=document.getElementById('spiralBox');
+    var frame=document.getElementById('spiralFrame');
+    if(box.classList.contains('show')){
+      box.classList.remove('show');
+      frame.src='about:blank';
+      this.textContent='🌀 展开原 3D 螺旋课节图谱';
+    }else{
+      box.classList.add('show');
+      frame.src='spiral.html';
+      this.textContent='🌀 收起 3D 螺旋';
+    }
+  });
+});
 </script>
 </body>
 </html>
