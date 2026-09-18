@@ -85,8 +85,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .vc:active .vc-em{transform:scale(1.15)}
 .vc .vc-en{font-size:17px;font-weight:800;color:var(--pri-d)}
 .vc .vc-cn{font-size:12px;color:var(--tx2);margin-top:2px}
-.vc .vc-spk{width:28px;height:28px;border-radius:50%;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:14px;margin:6px auto 0;transition:background .15s}
+.vc .vc-spk{width:28px;height:28px;border-radius:50%;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .15s}
+.vc .vc-mic{width:28px;height:28px;border-radius:50%;background:var(--teal-l);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .15s}
 .vc.playing .vc-spk{background:var(--pri);color:#FFF;animation:speakerPulse .8s ease-in-out infinite}
+.vc.playing .vc-mic{background:var(--teal);color:#FFF;animation:pulse .8s ease-in-out infinite}
+.vc .vc-actions{display:flex;gap:8px;justify-content:center;margin-top:6px}
+.vc .vc-actions .vc-spk,.vc .vc-actions .vc-mic{margin:0}
+.vc.shadowing{border-color:var(--teal);background:var(--teal-l);box-shadow:0 6px 20px rgba(78,205,196,.3);transform:scale(1.02)}
+.vc.practiced::before{content:'✅';position:absolute;top:6px;right:8px;font-size:14px;animation:starPop .4s ease}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @keyframes speakerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 
 /* ===== SENTENCE CARDS ===== */
@@ -230,7 +237,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 </div>
 
 <!-- VOCAB -->
-<div class="sect-t"><span class="ic">📖</span> 单词卡片<span class="hint">点击卡片听发音 ⭐</span></div>
+<div class="sect-t"><span class="ic">📖</span> 单词卡片<span class="hint">🔊 听发音 · 🎤 点麦克风跟读</span></div>
 <div class="vocab-grid" id="vocabGrid"></div>
 
 <!-- SENTENCES -->
@@ -434,7 +441,10 @@ gameWrong:"没关系！再试一次你一定行！💪",
 streak3:"三连击！🔥🔥🔥 你好厉害！",
 streak5:"五连击！🔥🔥🔥🔥🔥 简直是英语天才！",
 modDone:"恭喜！你通关了 <b>{name}</b>！获得 ⭐×{count}！",
-allDone:"天哪！所有岛屿都通关了！你是真正的英语小达人！🏆"
+allDone:"天哪！所有岛屿都通关了！你是真正的英语小达人！🏆",
+shadow1:"我先念：<b>{en}</b> ({cn}) 👂 听好了～",
+shadow2:"现在轮到你啦！大声读：<b>{en}</b> 🗣️",
+shadow3:"太棒了！<b>{en}</b> 读得标准！✅"
 };
 
 /* === STATE === */
@@ -524,16 +534,23 @@ document.getElementById('heroDesc').textContent=volStr+' · '+m.vocab.length+' �
 document.querySelector('.hero').style.background='linear-gradient(135deg,'+m.color+','+m.color+'bb)';
 }
 
+/* === Shadow Reading State === */
+var shadowState={active:false,word:null,step:0,timer:null}; // step: 0=idle, 1=polly speaks, 2=child turn, 3=done
+
 function renderVocab(){
 var m=curMod();
 var grid=document.getElementById('vocabGrid');
 grid.innerHTML='';
 var allLearned=true;
+var practiced=JSON.parse(localStorage.getItem('polly_practiced_v3')||'{}');
 m.vocab.forEach(function(v){
 var c=document.createElement('div');
-c.className='vc'+(state.learned.has(v.en)?' learned':'');
-c.innerHTML='<div class="vc-em">'+v.em+'</div><div class="vc-en">'+v.en+'</div><div class="vc-cn">'+v.cn+'</div><div class="vc-spk">🔊</div>';
-c.addEventListener('click',function(){
+var isLearned=state.learned.has(v.en);
+var isPracticed=practiced[v.en];
+c.className='vc'+(isLearned?' learned':'')+(isPracticed?' practiced':'');
+c.innerHTML='<div class="vc-em">'+v.em+'</div><div class="vc-en">'+v.en+'</div><div class="vc-cn">'+v.cn+'</div><div class="vc-actions"><div class="vc-spk" title="Polly 示范">🔊</div><div class="vc-mic" title="跟读练习">🎤</div></div>';
+c.querySelector('.vc-spk').addEventListener('click',function(e){
+e.stopPropagation();
 document.querySelectorAll('.vc.playing').forEach(function(el){el.classList.remove('playing');});
 c.classList.add('playing');
 speak(v.en);
@@ -549,12 +566,50 @@ setTimeout(function(){c.classList.remove('playing');},1500);
 renderProgress();
 renderIslands();
 });
+c.querySelector('.vc-mic').addEventListener('click',function(e){
+e.stopPropagation();
+startShadowReading(c,v);
+});
+c.addEventListener('click',function(){
+c.querySelector('.vc-spk').click();
+});
 grid.appendChild(c);
 if(!state.learned.has(v.en))allLearned=false;
 });
 if(allLearned&&m.vocab.length>0){
 setTimeout(function(){mascotMsg('vocabDone');},100);
 }
+}
+
+function startShadowReading(card,word){
+if(shadowState.active)return;
+shadowState.active=true;
+shadowState.word=word;
+shadowState.step=1;
+card.classList.add('shadowing');
+var micBtn=card.querySelector('.vc-mic');
+micBtn.textContent='👂'; // listening
+mascotMsg('shadow1',{en:word.en,cn:word.cn});
+speak(word.en);
+shadowState.timer=setTimeout(function(){
+shadowState.step=2;
+micBtn.textContent='🗣️'; // speaking
+mascotMsg('shadow2',{en:word.en});
+shadowState.timer=setTimeout(function(){
+shadowState.step=3;
+micBtn.textContent='✅';
+card.classList.add('practiced');
+practiced[word.en]=true;
+localStorage.setItem('polly_practiced_v3',JSON.stringify(practiced));
+mascotMsg('shadow3',{en:word.en,cn:word.cn});
+sfxStar();
+shadowState.timer=setTimeout(function(){
+shadowState.active=false;
+card.classList.remove('shadowing');
+micBtn.textContent='🎤';
+},2000);
+},3000);
+},1500);
 }
 
 function renderSents(){
