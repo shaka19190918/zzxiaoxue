@@ -669,6 +669,7 @@ if(state.lgStreak>=5)mascotMsg('streak5');
 else if(state.lgStreak>=3)mascotMsg('streak3');
 else mascotMsg('gameRight',{streak:state.lgStreak});
 document.getElementById('lgNext').style.display='block';
+lgAutoAdvance();
 }else{
 b.classList.add('wrong');state.lgStreak=0;save();
 sfxWrong();
@@ -686,6 +687,28 @@ box.appendChild(b);
 document.getElementById('lgFb').className='game-fb neutral';
 document.getElementById('lgFb').innerHTML='<span class="fb-em">🎯</span> 选一个答案吧！';
 document.getElementById('lgNext').style.display='none';
+}
+
+/* Auto-advance for GAME 1: correct answer -> next question after 1.2s */
+function lgAutoAdvance(){
+if(state.lgStreak>0){
+setTimeout(function(){
+if(document.getElementById('lgNext').style.display==='block'){
+lgNewQ();
+}
+},1200);
+}
+}
+
+/* Auto-advance for GAME 2: correct answer -> next question after 1.2s */
+function pgAutoAdvance(){
+if(state.pgStreak>0){
+setTimeout(function(){
+if(document.getElementById('pgNext').style.display==='block'){
+pgNewQ();
+}
+},1200);
+}
 }
 
 /* GAME 2: Listen, pick image */
@@ -726,6 +749,7 @@ if(state.pgStreak>=5)mascotMsg('streak5');
 else if(state.pgStreak>=3)mascotMsg('streak3');
 else mascotMsg('gameRight',{streak:state.pgStreak});
 document.getElementById('pgNext').style.display='block';
+pgAutoAdvance();
 }else{
 b.classList.add('wrong');state.pgStreak=0;save();
 sfxWrong();
